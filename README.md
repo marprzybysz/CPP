@@ -1,6 +1,6 @@
 # Marcinek C++
 
-Minimalny projekt C++ (C++20) na CMake.
+Minimalny projekt C++ na CMake.
 
 ## Budowanie
 ```bash
