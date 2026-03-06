@@ -2,6 +2,7 @@
 #include <string>
 
 #include "db.hpp"
+#include "errors/app_error.hpp"
 #include "errors/error_logger.hpp"
 #include "errors/error_mapper.hpp"
 #include "library.hpp"
@@ -32,6 +33,27 @@ int main() {
             std::cout << "Dodano ksiazke: " << created.public_id << "\n";
         } else {
             std::cout << "Ksiazka juz istnieje: " << existing.front().public_id << "\n";
+        }
+
+        const auto books = library.search_books(by_isbn_query);
+        if (!books.empty()) {
+            copies::CreateCopyInput copy_input;
+            copy_input.book_id = *books.front().id;
+            copy_input.inventory_number = "INV-000001";
+            copy_input.current_location_id = "SHELF-A1";
+            copy_input.target_location_id = "SHELF-A1";
+            copy_input.condition_note = "new copy";
+            copy_input.acquisition_date = "2026-03-07";
+
+            try {
+                const copies::BookCopy copy = library.add_copy(copy_input);
+                std::cout << "Dodano egzemplarz: " << copy.public_id << " (inv=" << copy.inventory_number << ")\n";
+            } catch (const errors::AppError&) {
+                const auto copies = library.list_book_copies(copy_input.book_id);
+                if (!copies.empty()) {
+                    std::cout << "Egzemplarz juz istnieje: " << copies.front().public_id << "\n";
+                }
+            }
         }
 
         const auto all_books = library.list_books(false, 20, 0);

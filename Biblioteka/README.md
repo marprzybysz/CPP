@@ -31,6 +31,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `book_repository.hpp`
 - `sqlite_book_repository.hpp`
 - `book_service.hpp`
+- `copies/`
+- `copy.hpp`
+- `copy_repository.hpp`
+- `sqlite_copy_repository.hpp`
+- `copy_service.hpp`
 - `errors/`
 - `app_error.hpp`
 - `error_codes.hpp`
@@ -45,6 +50,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `books/`
 - `book_service.cpp`
 - `sqlite_book_repository.cpp`
+- `copies/`
+- `copy.cpp`
+- `copy_service.cpp`
+- `sqlite_copy_repository.cpp`
 - `errors/`
 - `error_logger.cpp`
 - `error_mapper.cpp`
@@ -78,6 +87,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `common::SystemIdGenerator`: uniwersalny generator identyfikatorów systemowych
 - `books::SqliteBookRepository`: warstwa dostępu do danych katalogu książek
 - `books::BookService`: logika biznesowa katalogu książek (walidacja ISBN, public_id, logowanie operacji)
+- `copies::SqliteCopyRepository`: warstwa dostępu do danych egzemplarzy i historii zmian
+- `copies::CopyService`: logika biznesowa egzemplarzy (walidacja, przejścia statusów, lokalizacja)
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
 
 ## Moduł katalogu książek
@@ -112,6 +123,50 @@ Walidacja i reguły:
 - `isbn` jest wymagany i walidowany (ISBN-10 / ISBN-13)
 - `public_id` jest generowany automatycznie przez `common::SystemIdGenerator`
 - operacje serwisu są logowane przez `books::BookService`
+
+## Moduł egzemplarzy książek
+
+Książka (`books::Book`) i egzemplarz (`copies::BookCopy`) to osobne byty.
+
+Model egzemplarza zawiera:
+- `id` (wewnętrzne)
+- `public_id`
+- `book_id`
+- `inventory_number` (unikalny)
+- `status`
+- `target_location_id`
+- `current_location_id`
+- `condition_note`
+- `acquisition_date`
+- `archival_reason`
+- `created_at`
+- `updated_at`
+
+Statusy egzemplarza:
+- `ON_SHELF`
+- `LOANED`
+- `RESERVED`
+- `IN_REPAIR`
+- `ARCHIVED`
+- `LOST`
+
+Obsługiwane operacje:
+- dodanie egzemplarza
+- edycja egzemplarza
+- pobranie egzemplarza
+- listowanie egzemplarzy danej książki
+- zmiana statusu z walidacją przejść
+- zmiana lokalizacji
+
+Historia zmian:
+- `copy_status_history`: historia przejść statusów
+- `copy_location_history`: historia zmian lokalizacji
+
+Walidacja i reguły:
+- egzemplarz musi należeć do istniejącej książki (`book_id`)
+- `inventory_number` jest wymagany i unikalny
+- `public_id` egzemplarza jest generowany automatycznie (`COPY-YYYY-NNNNNN`)
+- dla statusu `ARCHIVED` wymagane jest `archival_reason`
 
 ## Konwencja identyfikatorów
 

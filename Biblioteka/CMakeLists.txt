@@ -12,6 +12,9 @@ add_executable(cpp_biblioteka
     src/common/system_id.cpp
     src/books/book_service.cpp
     src/books/sqlite_book_repository.cpp
+    src/copies/copy.cpp
+    src/copies/copy_service.cpp
+    src/copies/sqlite_copy_repository.cpp
     src/errors/error_mapper.cpp
     src/errors/error_logger.cpp
 )

@@ -87,6 +87,8 @@ Db::Db(std::string path) : path_(std::move(path)) {
     if (sqlite3_open(path_.c_str(), &db_) != SQLITE_OK) {
         throw_sqlite(db_, "Failed to open database");
     }
+
+    exec_or_throw(db_, "PRAGMA foreign_keys = ON;", "failed to enable foreign keys");
 }
 
 Db::~Db() {
@@ -122,4 +124,59 @@ void Db::init_schema() {
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_books_title ON books(title);", "failed to create idx_books_title");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_books_author ON books(author);", "failed to create idx_books_author");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_books_isbn ON books(isbn);", "failed to create idx_books_isbn");
+
+    const char* create_copies_sql =
+        "CREATE TABLE IF NOT EXISTS book_copies ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "book_id INTEGER NOT NULL,"
+        "inventory_number TEXT NOT NULL UNIQUE,"
+        "status TEXT NOT NULL CHECK(status IN ('ON_SHELF','LOANED','RESERVED','IN_REPAIR','ARCHIVED','LOST')),"
+        "target_location_id TEXT,"
+        "current_location_id TEXT,"
+        "condition_note TEXT NOT NULL DEFAULT '',"
+        "acquisition_date TEXT,"
+        "archival_reason TEXT,"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "updated_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "FOREIGN KEY(book_id) REFERENCES books(id)"
+        ");";
+
+    const char* create_copy_status_history_sql =
+        "CREATE TABLE IF NOT EXISTS copy_status_history ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "copy_public_id TEXT NOT NULL,"
+        "from_status TEXT NOT NULL,"
+        "to_status TEXT NOT NULL,"
+        "changed_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "note TEXT NOT NULL DEFAULT '',"
+        "FOREIGN KEY(copy_public_id) REFERENCES book_copies(public_id)"
+        ");";
+
+    const char* create_copy_location_history_sql =
+        "CREATE TABLE IF NOT EXISTS copy_location_history ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "copy_public_id TEXT NOT NULL,"
+        "from_location_id TEXT,"
+        "to_location_id TEXT,"
+        "from_target_location_id TEXT,"
+        "to_target_location_id TEXT,"
+        "changed_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "note TEXT NOT NULL DEFAULT '',"
+        "FOREIGN KEY(copy_public_id) REFERENCES book_copies(public_id)"
+        ");";
+
+    exec_or_throw(db_, create_copies_sql, "failed to create book_copies table");
+    exec_or_throw(db_, create_copy_status_history_sql, "failed to create copy_status_history table");
+    exec_or_throw(db_, create_copy_location_history_sql, "failed to create copy_location_history table");
+
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_book_copies_book_id ON book_copies(book_id);",
+                  "failed to create idx_book_copies_book_id");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_book_copies_status ON book_copies(status);",
+                  "failed to create idx_book_copies_status");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_copy_status_history_copy_id ON copy_status_history(copy_public_id);",
+                  "failed to create idx_copy_status_history_copy_id");
+    exec_or_throw(db_,
+                  "CREATE INDEX IF NOT EXISTS idx_copy_location_history_copy_id ON copy_location_history(copy_public_id);",
+                  "failed to create idx_copy_location_history_copy_id");
 }
