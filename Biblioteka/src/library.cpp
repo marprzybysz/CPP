@@ -12,7 +12,9 @@ Library::Library(Db& db)
       location_repository_(db_),
       location_service_(location_repository_, id_generator_),
       reader_repository_(db_),
-      reader_service_(reader_repository_, id_generator_) {}
+      reader_service_(reader_repository_, id_generator_),
+      note_repository_(db_),
+      note_service_(note_repository_, id_generator_) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
     return book_service_.add_book(input);
@@ -121,4 +123,20 @@ readers::Reader Library::block_reader(const std::string& public_id, const std::s
 
 readers::Reader Library::unblock_reader(const std::string& public_id) {
     return reader_service_.unblock_account(public_id);
+}
+
+notes::Note Library::add_note(const notes::CreateNoteInput& input) {
+    return note_service_.add_note(input);
+}
+
+std::vector<notes::Note> Library::get_notes_for_target(const notes::NotesForTargetQuery& query) const {
+    return note_service_.get_notes_for_target(query);
+}
+
+notes::Note Library::get_note_details(const std::string& public_id, bool include_archived) const {
+    return note_service_.get_note_details(public_id, include_archived);
+}
+
+void Library::archive_note(const std::string& public_id) {
+    note_service_.archive_note(public_id);
 }

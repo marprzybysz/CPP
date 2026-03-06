@@ -10,6 +10,9 @@
 #include "locations/location.hpp"
 #include "locations/location_service.hpp"
 #include "locations/sqlite_location_repository.hpp"
+#include "notes/note.hpp"
+#include "notes/note_service.hpp"
+#include "notes/sqlite_note_repository.hpp"
 #include "readers/reader.hpp"
 #include "readers/reader_service.hpp"
 #include "readers/sqlite_reader_repository.hpp"
@@ -55,6 +58,11 @@ public:
     readers::Reader block_reader(const std::string& public_id, const std::string& reason);
     readers::Reader unblock_reader(const std::string& public_id);
 
+    notes::Note add_note(const notes::CreateNoteInput& input);
+    std::vector<notes::Note> get_notes_for_target(const notes::NotesForTargetQuery& query) const;
+    notes::Note get_note_details(const std::string& public_id, bool include_archived = false) const;
+    void archive_note(const std::string& public_id);
+
 private:
     Db& db_;
     common::SystemIdGenerator id_generator_;
@@ -66,4 +74,6 @@ private:
     locations::LocationService location_service_;
     readers::SqliteReaderRepository reader_repository_;
     readers::ReaderService reader_service_;
+    notes::SqliteNoteRepository note_repository_;
+    notes::NoteService note_service_;
 };

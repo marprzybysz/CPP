@@ -41,6 +41,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `location_repository.hpp`
 - `sqlite_location_repository.hpp`
 - `location_service.hpp`
+- `notes/`
+- `note.hpp`
+- `note_repository.hpp`
+- `sqlite_note_repository.hpp`
+- `note_service.hpp`
 - `readers/`
 - `reader.hpp`
 - `reader_repository.hpp`
@@ -68,6 +73,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `location.cpp`
 - `location_service.cpp`
 - `sqlite_location_repository.cpp`
+- `notes/`
+- `note.cpp`
+- `note_service.cpp`
+- `sqlite_note_repository.cpp`
 - `readers/`
 - `reader.cpp`
 - `reader_service.cpp`
@@ -109,6 +118,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `copies::CopyService`: logika biznesowa egzemplarzy (walidacja, przejścia statusów, lokalizacja)
 - `locations::SqliteLocationRepository`: warstwa danych lokalizacji i przypisanych egzemplarzy
 - `locations::LocationService`: logika hierarchii lokalizacji i operacji drzewiastych
+- `notes::SqliteNoteRepository`: warstwa danych notatek generycznych
+- `notes::NoteService`: logika tworzenia/odczytu/archiwizacji notatek
 - `readers::SqliteReaderRepository`: warstwa danych czytelników
 - `readers::ReaderService`: logika kont czytelników (walidacja e-mail, generacja kart, blokady)
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
@@ -261,6 +272,35 @@ Reguły:
 Miejsce pod kolejne moduły:
 - `reader_loan_history` (historia wypożyczeń)
 - `reader_notes` (notatki o czytelniku)
+
+## Moduł notatek
+
+Notatki mogą być przypisane do:
+- czytelnika (`READER`)
+- książki (`BOOK`)
+- egzemplarza (`COPY`)
+- wypożyczenia (`LOAN`)
+
+Model notatki (`notes::Note`) zawiera:
+- `id`
+- `public_id`
+- `target_type`
+- `target_id`
+- `author`
+- `created_at`
+- `content`
+- `is_archived`
+- `archived_at`
+
+Obsługiwane operacje:
+- dodanie notatki
+- pobranie notatek dla obiektu (`target_type` + `target_id`)
+- archiwizacja notatki
+
+Reguły:
+- `target_type` jest enumem
+- `public_id` notatki jest generowany automatycznie (`NOTE-YYYY-NNNNNN`)
+- notatki są generyczne i mogą być używane przez różne moduły bez duplikowania logiki
 
 ## Konwencja identyfikatorów
 

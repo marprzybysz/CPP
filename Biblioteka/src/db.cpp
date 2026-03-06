@@ -175,6 +175,25 @@ void Db::init_schema() {
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reader_notes_reader ON reader_notes(reader_public_id);",
                   "failed to create idx_reader_notes_reader");
 
+    const char* create_notes_sql =
+        "CREATE TABLE IF NOT EXISTS notes ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "target_type TEXT NOT NULL CHECK(target_type IN ('READER','BOOK','COPY','LOAN')),"
+        "target_id TEXT NOT NULL,"
+        "author TEXT NOT NULL,"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "content TEXT NOT NULL,"
+        "is_archived INTEGER NOT NULL DEFAULT 0,"
+        "archived_at TEXT"
+        ");";
+
+    exec_or_throw(db_, create_notes_sql, "failed to create notes table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_notes_target ON notes(target_type, target_id);",
+                  "failed to create idx_notes_target");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_notes_created_at ON notes(created_at);",
+                  "failed to create idx_notes_created_at");
+
     const char* create_locations_sql =
         "CREATE TABLE IF NOT EXISTS locations ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
