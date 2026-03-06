@@ -44,6 +44,12 @@ BookCopy CopyService::add_copy(const CreateCopyInput& input) {
     if (copy.inventory_number.empty()) {
         throw errors::ValidationError("inventory_number is required");
     }
+    if (copy.current_location_id.has_value() && !repository_.location_exists(*copy.current_location_id)) {
+        throw errors::NotFoundError("Current location not found. public_id=" + *copy.current_location_id);
+    }
+    if (copy.target_location_id.has_value() && !repository_.location_exists(*copy.target_location_id)) {
+        throw errors::NotFoundError("Target location not found. public_id=" + *copy.target_location_id);
+    }
     if (repository_.inventory_number_exists(copy.inventory_number)) {
         throw errors::ValidationError("inventory_number must be unique");
     }
@@ -153,6 +159,13 @@ BookCopy CopyService::change_location(const std::string& public_id,
         if (target->empty()) {
             target = std::nullopt;
         }
+    }
+
+    if (current.has_value() && !repository_.location_exists(*current)) {
+        throw errors::NotFoundError("Current location not found. public_id=" + *current);
+    }
+    if (target.has_value() && !repository_.location_exists(*target)) {
+        throw errors::NotFoundError("Target location not found. public_id=" + *target);
     }
 
     BookCopy updated = repository_.update_location(public_id, current, target, normalize_text(note));

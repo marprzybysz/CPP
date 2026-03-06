@@ -125,6 +125,26 @@ void Db::init_schema() {
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_books_author ON books(author);", "failed to create idx_books_author");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_books_isbn ON books(isbn);", "failed to create idx_books_isbn");
 
+    const char* create_locations_sql =
+        "CREATE TABLE IF NOT EXISTS locations ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "name TEXT NOT NULL,"
+        "type TEXT NOT NULL CHECK(type IN ('LIBRARY','ROOM','RACK','SHELF')),"
+        "parent_id INTEGER,"
+        "code TEXT NOT NULL UNIQUE,"
+        "description TEXT NOT NULL DEFAULT '',"
+        "FOREIGN KEY(parent_id) REFERENCES locations(id)"
+        ");";
+
+    exec_or_throw(db_, create_locations_sql, "failed to create locations table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_locations_parent_id ON locations(parent_id);",
+                  "failed to create idx_locations_parent_id");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_locations_type ON locations(type);",
+                  "failed to create idx_locations_type");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_locations_code ON locations(code);",
+                  "failed to create idx_locations_code");
+
     const char* create_copies_sql =
         "CREATE TABLE IF NOT EXISTS book_copies ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -139,7 +159,9 @@ void Db::init_schema() {
         "archival_reason TEXT,"
         "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
         "updated_at TEXT NOT NULL DEFAULT (datetime('now')),"
-        "FOREIGN KEY(book_id) REFERENCES books(id)"
+        "FOREIGN KEY(book_id) REFERENCES books(id),"
+        "FOREIGN KEY(target_location_id) REFERENCES locations(public_id),"
+        "FOREIGN KEY(current_location_id) REFERENCES locations(public_id)"
         ");";
 
     const char* create_copy_status_history_sql =

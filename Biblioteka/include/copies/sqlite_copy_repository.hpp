@@ -10,6 +10,7 @@ public:
     explicit SqliteCopyRepository(Db& db) : db_(db) {}
 
     bool book_exists(int book_id) const override;
+    bool location_exists(const std::string& location_public_id) const override;
     bool inventory_number_exists(const std::string& inventory_number, const std::string* excluded_public_id = nullptr) const override;
 
     BookCopy create(const BookCopy& copy) override;

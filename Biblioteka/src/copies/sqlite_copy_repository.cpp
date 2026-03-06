@@ -141,6 +141,27 @@ bool SqliteCopyRepository::book_exists(int book_id) const {
     return exists;
 }
 
+bool SqliteCopyRepository::location_exists(const std::string& location_public_id) const {
+    const char* sql = "SELECT 1 FROM locations WHERE public_id = ? LIMIT 1;";
+    sqlite3_stmt* stmt = nullptr;
+
+    if (sqlite3_prepare_v2(db_.handle(), sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        throw_sqlite(db_.handle(), "prepare location_exists failed");
+    }
+
+    sqlite3_bind_text(stmt, 1, location_public_id.c_str(), -1, SQLITE_TRANSIENT);
+    const int rc = sqlite3_step(stmt);
+    const bool exists = (rc == SQLITE_ROW);
+
+    if (rc != SQLITE_ROW && rc != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        throw_sqlite(db_.handle(), "location_exists query failed");
+    }
+
+    sqlite3_finalize(stmt);
+    return exists;
+}
+
 bool SqliteCopyRepository::inventory_number_exists(const std::string& inventory_number,
                                                    const std::string* excluded_public_id) const {
     std::string sql = "SELECT 1 FROM book_copies WHERE inventory_number = ?";

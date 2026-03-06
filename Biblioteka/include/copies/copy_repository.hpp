@@ -14,6 +14,7 @@ public:
     virtual ~CopyRepository() = default;
 
     virtual bool book_exists(int book_id) const = 0;
+    virtual bool location_exists(const std::string& location_public_id) const = 0;
     virtual bool inventory_number_exists(const std::string& inventory_number, const std::string* excluded_public_id = nullptr) const = 0;
 
     virtual BookCopy create(const BookCopy& copy) = 0;

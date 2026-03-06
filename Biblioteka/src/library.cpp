@@ -8,7 +8,9 @@ Library::Library(Db& db)
       book_repository_(db_),
       book_service_(book_repository_, id_generator_),
       copy_repository_(db_),
-      copy_service_(copy_repository_, id_generator_) {}
+      copy_service_(copy_repository_, id_generator_),
+      location_repository_(db_),
+      location_service_(location_repository_, id_generator_) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
     return book_service_.add_book(input);
@@ -73,4 +75,24 @@ copies::BookCopy Library::change_copy_location(const std::string& public_id,
                                                const std::optional<std::string>& target_location_id,
                                                const std::string& note) {
     return copy_service_.change_location(public_id, current_location_id, target_location_id, note);
+}
+
+locations::Location Library::create_location(const locations::CreateLocationInput& input) {
+    return location_service_.create_location(input);
+}
+
+locations::Location Library::edit_location(const std::string& public_id, const locations::UpdateLocationInput& input) {
+    return location_service_.edit_location(public_id, input);
+}
+
+locations::Location Library::get_location(const std::string& public_id) const {
+    return location_service_.get_location(public_id);
+}
+
+std::vector<locations::LocationNode> Library::get_location_tree() const {
+    return location_service_.get_location_tree();
+}
+
+std::vector<copies::BookCopy> Library::get_location_copies(const std::string& public_id) const {
+    return location_service_.get_location_copies(public_id);
 }

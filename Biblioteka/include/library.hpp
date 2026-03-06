@@ -7,6 +7,9 @@
 #include "copies/copy_service.hpp"
 #include "copies/sqlite_copy_repository.hpp"
 #include "db.hpp"
+#include "locations/location.hpp"
+#include "locations/location_service.hpp"
+#include "locations/sqlite_location_repository.hpp"
 #include <optional>
 #include <string>
 #include <vector>
@@ -36,6 +39,12 @@ public:
                                           const std::optional<std::string>& target_location_id,
                                           const std::string& note = "");
 
+    locations::Location create_location(const locations::CreateLocationInput& input);
+    locations::Location edit_location(const std::string& public_id, const locations::UpdateLocationInput& input);
+    locations::Location get_location(const std::string& public_id) const;
+    std::vector<locations::LocationNode> get_location_tree() const;
+    std::vector<copies::BookCopy> get_location_copies(const std::string& public_id) const;
+
 private:
     Db& db_;
     common::SystemIdGenerator id_generator_;
@@ -43,4 +52,6 @@ private:
     books::BookService book_service_;
     copies::SqliteCopyRepository copy_repository_;
     copies::CopyService copy_service_;
+    locations::SqliteLocationRepository location_repository_;
+    locations::LocationService location_service_;
 };

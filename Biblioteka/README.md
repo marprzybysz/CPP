@@ -36,6 +36,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `copy_repository.hpp`
 - `sqlite_copy_repository.hpp`
 - `copy_service.hpp`
+- `locations/`
+- `location.hpp`
+- `location_repository.hpp`
+- `sqlite_location_repository.hpp`
+- `location_service.hpp`
 - `errors/`
 - `app_error.hpp`
 - `error_codes.hpp`
@@ -54,6 +59,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `copy.cpp`
 - `copy_service.cpp`
 - `sqlite_copy_repository.cpp`
+- `locations/`
+- `location.cpp`
+- `location_service.cpp`
+- `sqlite_location_repository.cpp`
 - `errors/`
 - `error_logger.cpp`
 - `error_mapper.cpp`
@@ -89,6 +98,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `books::BookService`: logika biznesowa katalogu książek (walidacja ISBN, public_id, logowanie operacji)
 - `copies::SqliteCopyRepository`: warstwa dostępu do danych egzemplarzy i historii zmian
 - `copies::CopyService`: logika biznesowa egzemplarzy (walidacja, przejścia statusów, lokalizacja)
+- `locations::SqliteLocationRepository`: warstwa danych lokalizacji i przypisanych egzemplarzy
+- `locations::LocationService`: logika hierarchii lokalizacji i operacji drzewiastych
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
 
 ## Moduł katalogu książek
@@ -167,6 +178,42 @@ Walidacja i reguły:
 - `inventory_number` jest wymagany i unikalny
 - `public_id` egzemplarza jest generowany automatycznie (`COPY-YYYY-NNNNNN`)
 - dla statusu `ARCHIVED` wymagane jest `archival_reason`
+- `current_location_id` i `target_location_id` muszą wskazywać istniejące lokalizacje
+
+## Moduł lokalizacji
+
+Hierarchia lokalizacji:
+- `LIBRARY`
+- `ROOM`
+- `RACK`
+- `SHELF`
+
+Każda lokalizacja zawiera:
+- `id`
+- `public_id`
+- `name`
+- `type`
+- `parent_id`
+- `code`
+- `description`
+
+Obsługiwane operacje:
+- tworzenie lokalizacji
+- edycja lokalizacji
+- pobranie lokalizacji
+- pobranie drzewa lokalizacji
+- pobranie egzemplarzy przypisanych do lokalizacji
+
+Reguły hierarchii:
+- `LIBRARY` nie ma rodzica
+- `ROOM` musi mieć rodzica typu `LIBRARY`
+- `RACK` musi mieć rodzica typu `ROOM`
+- `SHELF` musi mieć rodzica typu `RACK`
+- walidowane są cykle (`location` nie może być własnym przodkiem)
+
+Integracja z egzemplarzami:
+- `book_copies.current_location_id` i `book_copies.target_location_id` przechowują `locations.public_id`
+- `LocationService::get_location_copies(...)` zwraca egzemplarze, dla których lokalizacja jest bieżąca lub docelowa
 
 ## Konwencja identyfikatorów
 
