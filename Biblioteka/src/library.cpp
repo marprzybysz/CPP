@@ -1,60 +1,44 @@
 #include "library.hpp"
+
 #include <iostream>
-#include <stdexcept>
 
-static void throw_sqlite(sqlite3* db, const char* msg) {
-    throw std::runtime_error(std::string(msg) + " | sqlite: " + sqlite3_errmsg(db));
+Library::Library(Db& db)
+    : db_(db),
+      id_generator_(),
+      book_repository_(db_),
+      book_service_(book_repository_, id_generator_) {}
+
+books::Book Library::add_book(const books::CreateBookInput& input) {
+    return book_service_.add_book(input);
 }
 
-void Library::add_book(const Book& book) {
-    const char* sql = "INSERT INTO books (title, author) VALUES (?, ?);";
-    sqlite3_stmt* stmt = nullptr;
-
-    if (sqlite3_prepare_v2(db_.handle(), sql, -1, &stmt, nullptr) != SQLITE_OK)
-        throw_sqlite(db_.handle(), "prepare failed");
-
-    sqlite3_bind_text(stmt, 1, book.title.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, book.author.c_str(), -1, SQLITE_TRANSIENT);
-
-    if (sqlite3_step(stmt) != SQLITE_DONE) {
-        sqlite3_finalize(stmt);
-        throw_sqlite(db_.handle(), "insert failed");
-    }
-
-    sqlite3_finalize(stmt);
+books::Book Library::edit_book(const std::string& public_id, const books::UpdateBookInput& input) {
+    return book_service_.edit_book(public_id, input);
 }
 
-std::vector<Book> Library::list_books() const {
-    const char* sql = "SELECT id, title, author FROM books ORDER BY id;";
-    sqlite3_stmt* stmt = nullptr;
+void Library::archive_book(const std::string& public_id) {
+    book_service_.archive_book(public_id);
+}
 
-    if (sqlite3_prepare_v2(db_.handle(), sql, -1, &stmt, nullptr) != SQLITE_OK)
-        throw_sqlite(db_.handle(), "prepare failed");
+books::Book Library::get_book_details(const std::string& public_id, bool include_archived) const {
+    return book_service_.get_book_details(public_id, include_archived);
+}
 
-    std::vector<Book> out;
+std::vector<books::Book> Library::list_books(bool include_archived, int limit, int offset) const {
+    return book_service_.list_books(include_archived, limit, offset);
+}
 
-    while (true) {
-        int rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-            Book b;
-            b.id = sqlite3_column_int(stmt, 0);
-            b.title  = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-            b.author = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-            out.push_back(std::move(b));
-        } else if (rc == SQLITE_DONE) {
-            break;
-        } else {
-            sqlite3_finalize(stmt);
-            throw_sqlite(db_.handle(), "select failed");
+std::vector<books::Book> Library::search_books(const books::BookQuery& query) const {
+    return book_service_.search_books(query);
+}
+
+void Library::display_books(const std::vector<books::Book>& books) const {
+    for (const auto& book : books) {
+        std::cout << "[" << book.public_id << "] " << book.title << " by " << book.author
+                  << " | ISBN: " << book.isbn;
+        if (book.is_archived) {
+            std::cout << " | ARCHIVED";
         }
-    }
-
-    sqlite3_finalize(stmt);
-    return out;
-}
-
-void Library::display_books() const {
-    for (const auto& b : list_books()) {
-        std::cout << *b.id << ". " << b.title << " by " << b.author << "\n";
+        std::cout << '\n';
     }
 }

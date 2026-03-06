@@ -9,6 +9,11 @@ add_executable(cpp_biblioteka
     src/main.cpp
     src/db.cpp
     src/library.cpp
+    src/common/system_id.cpp
+    src/books/book_service.cpp
+    src/books/sqlite_book_repository.cpp
+    src/errors/error_mapper.cpp
+    src/errors/error_logger.cpp
 )
 
 target_include_directories(cpp_biblioteka PRIVATE include)

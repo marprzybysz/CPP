@@ -1,9 +1,4 @@
 #pragma once
-#include <string>
-#include <optional>
+#include "books/book.hpp"
 
-struct Book {
-    std::optional<int> id;   // jak w Pythonie: book_id=None
-    std::string title;
-    std::string author;
-};
+using Book = books::Book;
