@@ -10,6 +10,9 @@
 #include "locations/location.hpp"
 #include "locations/location_service.hpp"
 #include "locations/sqlite_location_repository.hpp"
+#include "readers/reader.hpp"
+#include "readers/reader_service.hpp"
+#include "readers/sqlite_reader_repository.hpp"
 #include <optional>
 #include <string>
 #include <vector>
@@ -45,6 +48,13 @@ public:
     std::vector<locations::LocationNode> get_location_tree() const;
     std::vector<copies::BookCopy> get_location_copies(const std::string& public_id) const;
 
+    readers::Reader add_reader(const readers::CreateReaderInput& input);
+    readers::Reader edit_reader(const std::string& public_id, const readers::UpdateReaderInput& input);
+    std::vector<readers::Reader> search_readers(const readers::ReaderQuery& query) const;
+    readers::Reader get_reader_details(const std::string& public_id) const;
+    readers::Reader block_reader(const std::string& public_id, const std::string& reason);
+    readers::Reader unblock_reader(const std::string& public_id);
+
 private:
     Db& db_;
     common::SystemIdGenerator id_generator_;
@@ -54,4 +64,6 @@ private:
     copies::CopyService copy_service_;
     locations::SqliteLocationRepository location_repository_;
     locations::LocationService location_service_;
+    readers::SqliteReaderRepository reader_repository_;
+    readers::ReaderService reader_service_;
 };

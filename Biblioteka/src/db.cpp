@@ -125,6 +125,56 @@ void Db::init_schema() {
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_books_author ON books(author);", "failed to create idx_books_author");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_books_isbn ON books(isbn);", "failed to create idx_books_isbn");
 
+    const char* create_readers_sql =
+        "CREATE TABLE IF NOT EXISTS readers ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "card_number TEXT NOT NULL UNIQUE,"
+        "first_name TEXT NOT NULL,"
+        "last_name TEXT NOT NULL,"
+        "email TEXT NOT NULL UNIQUE,"
+        "phone TEXT,"
+        "account_status TEXT NOT NULL CHECK(account_status IN ('ACTIVE','SUSPENDED','CLOSED')),"
+        "reputation_points INTEGER NOT NULL DEFAULT 0,"
+        "is_blocked INTEGER NOT NULL DEFAULT 0,"
+        "block_reason TEXT,"
+        "gdpr_consent INTEGER NOT NULL DEFAULT 0,"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "updated_at TEXT NOT NULL DEFAULT (datetime('now'))"
+        ");";
+
+    const char* create_reader_loan_history_sql =
+        "CREATE TABLE IF NOT EXISTS reader_loan_history ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "reader_public_id TEXT NOT NULL,"
+        "loan_public_id TEXT NOT NULL,"
+        "action TEXT NOT NULL,"
+        "action_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "note TEXT NOT NULL DEFAULT '',"
+        "FOREIGN KEY(reader_public_id) REFERENCES readers(public_id)"
+        ");";
+
+    const char* create_reader_notes_sql =
+        "CREATE TABLE IF NOT EXISTS reader_notes ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "reader_public_id TEXT NOT NULL,"
+        "note TEXT NOT NULL,"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "FOREIGN KEY(reader_public_id) REFERENCES readers(public_id)"
+        ");";
+
+    exec_or_throw(db_, create_readers_sql, "failed to create readers table");
+    exec_or_throw(db_, create_reader_loan_history_sql, "failed to create reader_loan_history table");
+    exec_or_throw(db_, create_reader_notes_sql, "failed to create reader_notes table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_readers_email ON readers(email);",
+                  "failed to create idx_readers_email");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_readers_card_number ON readers(card_number);",
+                  "failed to create idx_readers_card_number");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reader_loan_history_reader ON reader_loan_history(reader_public_id);",
+                  "failed to create idx_reader_loan_history_reader");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reader_notes_reader ON reader_notes(reader_public_id);",
+                  "failed to create idx_reader_notes_reader");
+
     const char* create_locations_sql =
         "CREATE TABLE IF NOT EXISTS locations ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"

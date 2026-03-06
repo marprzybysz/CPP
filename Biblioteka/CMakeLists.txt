@@ -18,6 +18,9 @@ add_executable(cpp_biblioteka
     src/locations/location.cpp
     src/locations/location_service.cpp
     src/locations/sqlite_location_repository.cpp
+    src/readers/reader.cpp
+    src/readers/reader_service.cpp
+    src/readers/sqlite_reader_repository.cpp
     src/errors/error_mapper.cpp
     src/errors/error_logger.cpp
 )

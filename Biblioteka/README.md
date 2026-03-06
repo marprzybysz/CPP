@@ -41,6 +41,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `location_repository.hpp`
 - `sqlite_location_repository.hpp`
 - `location_service.hpp`
+- `readers/`
+- `reader.hpp`
+- `reader_repository.hpp`
+- `sqlite_reader_repository.hpp`
+- `reader_service.hpp`
 - `errors/`
 - `app_error.hpp`
 - `error_codes.hpp`
@@ -63,6 +68,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `location.cpp`
 - `location_service.cpp`
 - `sqlite_location_repository.cpp`
+- `readers/`
+- `reader.cpp`
+- `reader_service.cpp`
+- `sqlite_reader_repository.cpp`
 - `errors/`
 - `error_logger.cpp`
 - `error_mapper.cpp`
@@ -100,6 +109,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `copies::CopyService`: logika biznesowa egzemplarzy (walidacja, przejścia statusów, lokalizacja)
 - `locations::SqliteLocationRepository`: warstwa danych lokalizacji i przypisanych egzemplarzy
 - `locations::LocationService`: logika hierarchii lokalizacji i operacji drzewiastych
+- `readers::SqliteReaderRepository`: warstwa danych czytelników
+- `readers::ReaderService`: logika kont czytelników (walidacja e-mail, generacja kart, blokady)
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
 
 ## Moduł katalogu książek
@@ -214,6 +225,42 @@ Reguły hierarchii:
 Integracja z egzemplarzami:
 - `book_copies.current_location_id` i `book_copies.target_location_id` przechowują `locations.public_id`
 - `LocationService::get_location_copies(...)` zwraca egzemplarze, dla których lokalizacja jest bieżąca lub docelowa
+
+## Moduł czytelników
+
+Model czytelnika (`readers::Reader`) zawiera:
+- `id`
+- `public_id`
+- `card_number`
+- `first_name`
+- `last_name`
+- `email`
+- `phone`
+- `account_status`
+- `reputation_points`
+- `is_blocked`
+- `block_reason`
+- `gdpr_consent`
+- `created_at`
+- `updated_at`
+
+Obsługiwane operacje:
+- dodawanie czytelnika
+- edycja czytelnika
+- wyszukiwanie czytelnika
+- pobranie szczegółów czytelnika
+- blokada konta
+- odblokowanie konta
+
+Reguły:
+- `card_number` jest generowany automatycznie (`CARD-000123`)
+- e-mail jest walidowany i musi być unikalny
+- `account_status` jest enumem (`ACTIVE`, `SUSPENDED`, `CLOSED`)
+- operacje są logowane przez `readers::ReaderService`
+
+Miejsce pod kolejne moduły:
+- `reader_loan_history` (historia wypożyczeń)
+- `reader_notes` (notatki o czytelniku)
 
 ## Konwencja identyfikatorów
 

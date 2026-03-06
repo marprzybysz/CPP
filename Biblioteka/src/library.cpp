@@ -10,7 +10,9 @@ Library::Library(Db& db)
       copy_repository_(db_),
       copy_service_(copy_repository_, id_generator_),
       location_repository_(db_),
-      location_service_(location_repository_, id_generator_) {}
+      location_service_(location_repository_, id_generator_),
+      reader_repository_(db_),
+      reader_service_(reader_repository_, id_generator_) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
     return book_service_.add_book(input);
@@ -95,4 +97,28 @@ std::vector<locations::LocationNode> Library::get_location_tree() const {
 
 std::vector<copies::BookCopy> Library::get_location_copies(const std::string& public_id) const {
     return location_service_.get_location_copies(public_id);
+}
+
+readers::Reader Library::add_reader(const readers::CreateReaderInput& input) {
+    return reader_service_.add_reader(input);
+}
+
+readers::Reader Library::edit_reader(const std::string& public_id, const readers::UpdateReaderInput& input) {
+    return reader_service_.edit_reader(public_id, input);
+}
+
+std::vector<readers::Reader> Library::search_readers(const readers::ReaderQuery& query) const {
+    return reader_service_.search_readers(query);
+}
+
+readers::Reader Library::get_reader_details(const std::string& public_id) const {
+    return reader_service_.get_reader_details(public_id);
+}
+
+readers::Reader Library::block_reader(const std::string& public_id, const std::string& reason) {
+    return reader_service_.block_account(public_id, reason);
+}
+
+readers::Reader Library::unblock_reader(const std::string& public_id) {
+    return reader_service_.unblock_account(public_id);
 }
