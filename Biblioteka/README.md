@@ -46,6 +46,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `note_repository.hpp`
 - `sqlite_note_repository.hpp`
 - `note_service.hpp`
+- `reservations/`
+- `reservation.hpp`
+- `reservation_repository.hpp`
+- `sqlite_reservation_repository.hpp`
+- `reservation_service.hpp`
 - `readers/`
 - `reader.hpp`
 - `reader_repository.hpp`
@@ -77,6 +82,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `note.cpp`
 - `note_service.cpp`
 - `sqlite_note_repository.cpp`
+- `reservations/`
+- `reservation.cpp`
+- `reservation_service.cpp`
+- `sqlite_reservation_repository.cpp`
 - `readers/`
 - `reader.cpp`
 - `reader_service.cpp`
@@ -120,6 +129,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `locations::LocationService`: logika hierarchii lokalizacji i operacji drzewiastych
 - `notes::SqliteNoteRepository`: warstwa danych notatek generycznych
 - `notes::NoteService`: logika tworzenia/odczytu/archiwizacji notatek
+- `reservations::SqliteReservationRepository`: warstwa danych rezerwacji
+- `reservations::ReservationService`: logika rezerwacji i wykrywania aktywnej kolejki po zwrocie
 - `readers::SqliteReaderRepository`: warstwa danych czytelników
 - `readers::ReaderService`: logika kont czytelników (walidacja e-mail, generacja kart, blokady)
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
@@ -302,6 +313,41 @@ Reguły:
 - `public_id` notatki jest generowany automatycznie (`NOTE-YYYY-NNNNNN`)
 - notatki są generyczne i mogą być używane przez różne moduły bez duplikowania logiki
 
+## Moduł rezerwacji
+
+System obsługuje:
+- utworzenie rezerwacji
+- anulowanie rezerwacji
+- wygaśnięcie rezerwacji
+- powiązanie rezerwacji z książką lub egzemplarzem
+
+Model rezerwacji (`reservations::Reservation`) zawiera:
+- `id`
+- `public_id`
+- `reader_id`
+- `copy_id` lub `book_id`
+- `reservation_date`
+- `expiration_date`
+- `status`
+- `created_at`
+- `updated_at`
+
+Statusy:
+- `ACTIVE`
+- `CANCELLED`
+- `EXPIRED`
+- `FULFILLED` (pod przyszły workflow realizacji)
+
+Zasady działania:
+- czytelnik z blokadą nie może tworzyć rezerwacji
+- rezerwacja musi wskazywać dokładnie jeden cel (`copy_id` albo `book_id`)
+- dla rezerwacji egzemplarza walidowany jest status egzemplarza (blokowane m.in. `RESERVED`, `ARCHIVED`, `LOST`, `IN_REPAIR`)
+- system potrafi wykryć najstarszą aktywną rezerwację dla zwróconego egzemplarza (najpierw po `copy_id`, potem po `book_id`)
+
+Integracja:
+- moduł korzysta z danych `readers`, `books`, `book_copies`
+- przygotowane API może być użyte przez przyszły moduł wypożyczeń przy obsłudze zwrotu
+
 ## Konwencja identyfikatorów
 
 Generator obsługuje formaty:
@@ -309,12 +355,13 @@ Generator obsługuje formaty:
 - `COPY-2026-000001`
 - `CARD-000123`
 - `LOAN-2026-000991`
+- `RES-2026-000010`
 - `RPT-2026-000120`
 - `LOC-2026-000001`
 - `NOTE-2026-000001`
 
 Zasady:
-- prefiks identyfikuje domenę (`BOOK`, `COPY`, `CARD`, `LOAN`, `RPT`, `LOC`, `NOTE`)
+- prefiks identyfikuje domenę (`BOOK`, `COPY`, `CARD`, `LOAN`, `RES`, `RPT`, `LOC`, `NOTE`)
 - dla typów rocznych numeracja jest niezależna per rok
 - sekwencja jest zeropadowana do szerokości 6
 - `CARD` nie zawiera roku i używa globalnej sekwencji

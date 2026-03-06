@@ -16,6 +16,9 @@
 #include "readers/reader.hpp"
 #include "readers/reader_service.hpp"
 #include "readers/sqlite_reader_repository.hpp"
+#include "reservations/reservation.hpp"
+#include "reservations/reservation_service.hpp"
+#include "reservations/sqlite_reservation_repository.hpp"
 #include <optional>
 #include <string>
 #include <vector>
@@ -63,6 +66,12 @@ public:
     notes::Note get_note_details(const std::string& public_id, bool include_archived = false) const;
     void archive_note(const std::string& public_id);
 
+    reservations::Reservation create_reservation(const reservations::CreateReservationInput& input);
+    reservations::Reservation get_reservation_details(const std::string& public_id) const;
+    reservations::Reservation cancel_reservation(const std::string& public_id);
+    reservations::Reservation expire_reservation(const std::string& public_id);
+    std::optional<reservations::Reservation> find_active_reservation_for_returned_copy(int copy_id) const;
+
 private:
     Db& db_;
     common::SystemIdGenerator id_generator_;
@@ -76,4 +85,6 @@ private:
     readers::ReaderService reader_service_;
     notes::SqliteNoteRepository note_repository_;
     notes::NoteService note_service_;
+    reservations::SqliteReservationRepository reservation_repository_;
+    reservations::ReservationService reservation_service_;
 };

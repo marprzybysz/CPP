@@ -38,6 +38,8 @@ IdRule rule_for(IdType type) {
             return IdRule{"CARD", false, 6};
         case IdType::Loan:
             return IdRule{"LOAN", true, 6};
+        case IdType::Reservation:
+            return IdRule{"RES", true, 6};
         case IdType::Report:
             return IdRule{"RPT", true, 6};
         case IdType::Location:

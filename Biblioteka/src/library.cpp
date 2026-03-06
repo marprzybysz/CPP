@@ -14,7 +14,9 @@ Library::Library(Db& db)
       reader_repository_(db_),
       reader_service_(reader_repository_, id_generator_),
       note_repository_(db_),
-      note_service_(note_repository_, id_generator_) {}
+      note_service_(note_repository_, id_generator_),
+      reservation_repository_(db_),
+      reservation_service_(reservation_repository_, id_generator_) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
     return book_service_.add_book(input);
@@ -139,4 +141,24 @@ notes::Note Library::get_note_details(const std::string& public_id, bool include
 
 void Library::archive_note(const std::string& public_id) {
     note_service_.archive_note(public_id);
+}
+
+reservations::Reservation Library::create_reservation(const reservations::CreateReservationInput& input) {
+    return reservation_service_.create_reservation(input);
+}
+
+reservations::Reservation Library::get_reservation_details(const std::string& public_id) const {
+    return reservation_service_.get_reservation_details(public_id);
+}
+
+reservations::Reservation Library::cancel_reservation(const std::string& public_id) {
+    return reservation_service_.cancel_reservation(public_id);
+}
+
+reservations::Reservation Library::expire_reservation(const std::string& public_id) {
+    return reservation_service_.expire_reservation(public_id);
+}
+
+std::optional<reservations::Reservation> Library::find_active_reservation_for_returned_copy(int copy_id) const {
+    return reservation_service_.find_active_for_returned_copy(copy_id);
 }

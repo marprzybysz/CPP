@@ -13,6 +13,7 @@ enum class IdType {
     Copy,
     Card,
     Loan,
+    Reservation,
     Report,
     Location,
     Note,

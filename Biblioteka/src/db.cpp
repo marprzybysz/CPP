@@ -194,6 +194,36 @@ void Db::init_schema() {
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_notes_created_at ON notes(created_at);",
                   "failed to create idx_notes_created_at");
 
+    const char* create_reservations_sql =
+        "CREATE TABLE IF NOT EXISTS reservations ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "reader_id INTEGER NOT NULL,"
+        "copy_id INTEGER,"
+        "book_id INTEGER,"
+        "reservation_date TEXT NOT NULL DEFAULT (date('now')),"
+        "expiration_date TEXT NOT NULL,"
+        "status TEXT NOT NULL CHECK(status IN ('ACTIVE','CANCELLED','EXPIRED','FULFILLED')),"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "updated_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "CHECK ((copy_id IS NOT NULL AND book_id IS NULL) OR (copy_id IS NULL AND book_id IS NOT NULL)),"
+        "FOREIGN KEY(reader_id) REFERENCES readers(id),"
+        "FOREIGN KEY(copy_id) REFERENCES book_copies(id),"
+        "FOREIGN KEY(book_id) REFERENCES books(id)"
+        ");";
+
+    exec_or_throw(db_, create_reservations_sql, "failed to create reservations table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reservations_reader_id ON reservations(reader_id);",
+                  "failed to create idx_reservations_reader_id");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reservations_copy_id ON reservations(copy_id);",
+                  "failed to create idx_reservations_copy_id");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reservations_book_id ON reservations(book_id);",
+                  "failed to create idx_reservations_book_id");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reservations_status ON reservations(status);",
+                  "failed to create idx_reservations_status");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reservations_expiration_date ON reservations(expiration_date);",
+                  "failed to create idx_reservations_expiration_date");
+
     const char* create_locations_sql =
         "CREATE TABLE IF NOT EXISTS locations ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
