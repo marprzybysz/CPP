@@ -3,6 +3,7 @@
 #include "ui/controllers/books_controller.hpp"
 #include "ui/controllers/copies_controller.hpp"
 #include "ui/controllers/dashboard_controller.hpp"
+#include "ui/controllers/readers_controller.hpp"
 
 class Library;
 
@@ -24,6 +25,7 @@ private:
     DashboardController dashboard_controller_;
     BooksController books_controller_;
     CopiesController copies_controller_;
+    ReadersController readers_controller_;
 };
 
 } // namespace controllers

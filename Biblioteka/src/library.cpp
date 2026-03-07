@@ -225,6 +225,10 @@ int Library::get_reader_reputation(int reader_id) const {
     return reputation_service_.get_current_reputation(reader_id);
 }
 
+std::vector<readers::ReaderLoanHistoryEntry> Library::get_reader_loan_history(const std::string& reader_public_id) const {
+    return reader_repository_.list_loan_history(reader_public_id);
+}
+
 std::vector<reputation::ReputationChange> Library::get_reader_reputation_history(int reader_id, int limit, int offset) const {
     return reputation_service_.get_reputation_history(reader_id, limit, offset);
 }

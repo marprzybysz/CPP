@@ -90,6 +90,7 @@ public:
     readers::Reader block_reader(const std::string& public_id, const std::string& reason);
     readers::Reader unblock_reader(const std::string& public_id);
     int get_reader_reputation(int reader_id) const;
+    std::vector<readers::ReaderLoanHistoryEntry> get_reader_loan_history(const std::string& reader_public_id) const;
     std::vector<reputation::ReputationChange> get_reader_reputation_history(int reader_id,
                                                                             int limit = 100,
                                                                             int offset = 0) const;

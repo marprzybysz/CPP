@@ -69,6 +69,7 @@ add_executable(cpp_biblioteka
     src/ui/controllers/books_controller.cpp
     src/ui/controllers/copies_controller.cpp
     src/ui/controllers/dashboard_controller.cpp
+    src/ui/controllers/readers_controller.cpp
     src/ui/screens/book_details_screen.cpp
     src/ui/screens/book_form_screen.cpp
     src/ui/screens/book_list_screen.cpp
@@ -79,6 +80,13 @@ add_executable(cpp_biblioteka
     src/ui/screens/copy_status_screen.cpp
     src/ui/screens/dashboard_screen.cpp
     src/ui/screens/placeholder_screen.cpp
+    src/ui/screens/reader_block_dialog_screen.cpp
+    src/ui/screens/reader_details_screen.cpp
+    src/ui/screens/reader_form_screen.cpp
+    src/ui/screens/reader_list_screen.cpp
+    src/ui/screens/reader_loan_history_screen.cpp
+    src/ui/screens/reader_reputation_screen.cpp
+    src/ui/screens/reader_unblock_dialog_screen.cpp
 )
 
 target_include_directories(cpp_biblioteka PRIVATE include)

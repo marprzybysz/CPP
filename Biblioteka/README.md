@@ -191,6 +191,35 @@ Workflow:
    - `a` dodanie nowego egzemplarza.
 6. W widoku listy i szczegółów `q`/`esc` wraca do poprzedniego ekranu.
 
+## Ekran TUI: Czytelnicy
+Moduł ekranów czytelników:
+- `ReaderListScreen`: listowanie i wyszukiwanie czytelników,
+- `ReaderDetailsScreen`: szczegóły konta czytelnika,
+- `ReaderFormScreen`: dodawanie i edycja czytelnika,
+- `ReaderBlockDialogScreen`: dialog blokady konta,
+- `ReaderUnblockDialogScreen`: dialog odblokowania konta,
+- `ReaderReputationScreen`: podgląd reputacji i historii zmian,
+- `ReaderLoanHistoryScreen`: podgląd historii wypożyczeń.
+
+Workflow:
+1. Z `Dashboard` wybierz `Czytelnicy`.
+2. W `ReaderListScreen` wyszukuj po:
+   - `f:<fraza>` imię,
+   - `l:<fraza>` nazwisko,
+   - `c:<fraza>` numer karty,
+   - `e:<fraza>` email,
+   - `clear` wyczyszczenie filtrów.
+3. Akcje:
+   - `Enter` szczegóły,
+   - `a` dodaj,
+   - `e` edytuj,
+   - `b` zablokuj,
+   - `u` odblokuj,
+   - `h` historia wypożyczeń,
+   - `r` reputacja,
+   - `q` powrót.
+4. Widok szczegółów pokazuje: numer karty, imię i nazwisko, email, telefon, status konta, punkty reputacji i informację o blokadzie.
+
 ## Opis bazy danych SQLite
 Kluczowe tabele:
 - Katalog: `books`, `book_copies`, `copy_status_history`, `copy_location_history`
