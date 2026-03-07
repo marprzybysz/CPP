@@ -52,8 +52,19 @@ add_executable(cpp_biblioteka
     src/ui/application.cpp
     src/ui/input_handler.cpp
     src/ui/renderer.cpp
+    src/ui/style.cpp
     src/ui/screen_manager.cpp
+    src/ui/components/confirm_dialog.cpp
+    src/ui/components/dialog.cpp
+    src/ui/components/footer.cpp
+    src/ui/components/form_field.cpp
+    src/ui/components/header.cpp
+    src/ui/components/list_view.cpp
     src/ui/components/menu.cpp
+    src/ui/components/message_box.cpp
+    src/ui/components/search_box.cpp
+    src/ui/components/status_bar.cpp
+    src/ui/components/table_view.cpp
     src/ui/controllers/application_controller.cpp
     src/ui/controllers/dashboard_controller.cpp
     src/ui/screens/dashboard_screen.cpp

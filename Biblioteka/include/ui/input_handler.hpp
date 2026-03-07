@@ -7,6 +7,8 @@ namespace ui {
 enum class Key {
     Up,
     Down,
+    Left,
+    Right,
     Enter,
     Back,
     Quit,

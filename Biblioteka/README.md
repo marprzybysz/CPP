@@ -113,10 +113,30 @@ Szkielet TUI jest podzielony na:
 - `ui/screens/Screen`: bazowy interfejs ekranów,
 - `ui/ScreenManager`: rejestracja ekranów i przełączanie widoków,
 - `ui/Renderer`: rysowanie terminala,
+- `ui/style`: wspólny system stylowania tekstu ANSI,
 - `ui/InputHandler`: mapowanie wejścia użytkownika na zdarzenia nawigacji,
 - `ui/components/Menu`: współdzielony komponent menu,
 - `ui/controllers/ApplicationController`: bootstrap ekranów,
 - `ui/controllers/DashboardController`: dostarcza metryki do dashboardu.
+
+Wspólne komponenty TUI (`ui/components`) gotowe do użycia przez moduły książek, czytelników i wypożyczeń:
+- `Header`
+- `Footer`
+- `StatusBar`
+- `ListView`
+- `TableView`
+- `Dialog`
+- `ConfirmDialog`
+- `MessageBox`
+- `FormField`
+- `SearchBox`
+
+Dostępne style tekstu:
+- `header`
+- `highlight`
+- `error`
+- `success`
+- `warning`
 
 Dashboard pokazuje:
 - tytuł aplikacji,

@@ -12,6 +12,12 @@ ui::Key map_input_to_key(const std::string& raw) {
     if (raw == "\x1b[B") {
         return ui::Key::Down;
     }
+    if (raw == "\x1b[D") {
+        return ui::Key::Left;
+    }
+    if (raw == "\x1b[C") {
+        return ui::Key::Right;
+    }
 
     if (raw.empty()) {
         return ui::Key::Enter;
