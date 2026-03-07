@@ -14,6 +14,7 @@ enum class AuditModule {
     Inventory,
     Supply,
     Export,
+    Import,
 };
 
 struct AuditEvent {

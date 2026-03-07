@@ -418,7 +418,7 @@ void Db::init_schema() {
     const char* create_audit_events_sql =
         "CREATE TABLE IF NOT EXISTS audit_events ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "module TEXT NOT NULL CHECK(module IN ('SYSTEM','BOOKS','COPIES','READERS','LOANS','INVENTORY','SUPPLY','EXPORT')),"
+        "module TEXT NOT NULL CHECK(module IN ('SYSTEM','BOOKS','COPIES','READERS','LOANS','INVENTORY','SUPPLY','EXPORT','IMPORT')),"
         "actor TEXT NOT NULL,"
         "occurred_at TEXT NOT NULL DEFAULT (datetime('now')),"
         "object_type TEXT NOT NULL,"
@@ -453,4 +453,38 @@ void Db::init_schema() {
                   "failed to create idx_copy_withdrawals_reason");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_copy_withdrawals_date ON copy_withdrawals(withdrawal_date);",
                   "failed to create idx_copy_withdrawals_date");
+
+    const char* create_import_runs_sql =
+        "CREATE TABLE IF NOT EXISTS import_runs ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "format TEXT NOT NULL CHECK(format IN ('CSV','EXCEL','DATABASE')),"
+        "target TEXT NOT NULL CHECK(target IN ('BOOKS','READERS')),"
+        "status TEXT NOT NULL CHECK(status IN ('IN_PROGRESS','COMPLETED','COMPLETED_WITH_ERRORS','FAILED')),"
+        "source TEXT NOT NULL,"
+        "operator_name TEXT NOT NULL,"
+        "valid_records INTEGER NOT NULL DEFAULT 0,"
+        "invalid_records INTEGER NOT NULL DEFAULT 0,"
+        "started_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "finished_at TEXT"
+        ");";
+
+    const char* create_import_run_errors_sql =
+        "CREATE TABLE IF NOT EXISTS import_run_errors ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "run_public_id TEXT NOT NULL,"
+        "row_number INTEGER NOT NULL,"
+        "message TEXT NOT NULL,"
+        "raw_record TEXT NOT NULL DEFAULT '',"
+        "FOREIGN KEY(run_public_id) REFERENCES import_runs(public_id)"
+        ");";
+
+    exec_or_throw(db_, create_import_runs_sql, "failed to create import_runs table");
+    exec_or_throw(db_, create_import_run_errors_sql, "failed to create import_run_errors table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_import_runs_target ON import_runs(target);",
+                  "failed to create idx_import_runs_target");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_import_runs_started_at ON import_runs(started_at);",
+                  "failed to create idx_import_runs_started_at");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_import_run_errors_run_public_id ON import_run_errors(run_public_id);",
+                  "failed to create idx_import_run_errors_run_public_id");
 }

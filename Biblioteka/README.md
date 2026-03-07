@@ -1,7 +1,7 @@
 # Biblioteka
 
 Projekt `Biblioteka` to backend/logika systemu zarządzania biblioteką napisany w C++20.
-Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, wycofywania, lokalizacji, inwentaryzacji, raportów, audytu i błędów.
+Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, wycofywania, lokalizacji, inwentaryzacji, raportów, audytu, importu i błędów.
 
 ## Cel projektu
 
@@ -51,6 +51,13 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `export_repository.hpp`
 - `sqlite_export_repository.hpp`
 - `export_service.hpp`
+- `imports/`
+- `import.hpp`
+- `import_parser.hpp`
+- `csv_import_parser.hpp`
+- `import_repository.hpp`
+- `sqlite_import_repository.hpp`
+- `import_service.hpp`
 - `notes/`
 - `note.hpp`
 - `note_repository.hpp`
@@ -111,6 +118,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `export.cpp`
 - `export_service.cpp`
 - `sqlite_export_repository.cpp`
+- `imports/`
+- `import.cpp`
+- `csv_import_parser.cpp`
+- `import_service.cpp`
+- `sqlite_import_repository.cpp`
 - `notes/`
 - `note.cpp`
 - `note_service.cpp`
@@ -175,6 +187,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `inventory::InventoryService`: logika biznesowa spisu z natury dla `ROOM`/`RACK`/`SHELF`
 - `exports::SqliteExportRepository`: warstwa danych wycofań egzemplarzy z obiegu
 - `exports::ExportService`: logika biznesowa wycofania egzemplarza i listowania wycofanych pozycji
+- `imports::SqliteImportRepository`: warstwa danych przebiegów importu i błędów rekordów
+- `imports::ImportService`: logika importu danych i raportowania podsumowania importu
 - `notes::SqliteNoteRepository`: warstwa danych notatek generycznych
 - `notes::NoteService`: logika tworzenia/odczytu/archiwizacji notatek
 - `reservations::SqliteReservationRepository`: warstwa danych rezerwacji
@@ -404,6 +418,35 @@ Logika archiwizacji:
 Dostępne operacje:
 - `withdraw_copy(...)`
 - `list_withdrawn_copies(...)`
+
+## Moduł importu danych
+
+Import jest zaprojektowany pod rozszerzanie formatów:
+- `CSV` (zaimplementowane)
+- `EXCEL` (przygotowane na przyszłość)
+- `DATABASE` (przygotowane na przyszłość)
+
+Obsługiwane cele importu:
+- `BOOKS`
+- `READERS`
+
+Założenia:
+- parser jest abstrahowany przez `imports::ImportParser`
+- implementacja CSV jest dostarczona przez `imports::CsvImportParser`
+- serwis `imports::ImportService` wybiera parser po `ImportFormat`
+
+Raport operacji importu:
+- `imports::ImportRun` przechowuje metadane i podsumowanie (`valid_records`, `invalid_records`, `status`)
+- `imports::ImportRecordError` przechowuje błędy pojedynczych rekordów (`row_number`, `message`, `raw_record`)
+- dane raportu są trwałe w `import_runs` i `import_run_errors`
+
+Walidacja i błędy:
+- walidowane są parametry żądania importu (źródło, operator)
+- walidowane są wymagane kolumny i pola rekordów
+- błędne rekordy nie przerywają całego importu, trafiają do listy błędów raportu
+
+Integracja z audytem:
+- zapis zdarzenia `START` i `FINISH` dla każdego importu (`AuditModule::Import`)
 
 ## Moduł czytelników
 

@@ -19,6 +19,10 @@
 #include "inventory/inventory.hpp"
 #include "inventory/inventory_service.hpp"
 #include "inventory/sqlite_inventory_repository.hpp"
+#include "imports/csv_import_parser.hpp"
+#include "imports/import.hpp"
+#include "imports/import_service.hpp"
+#include "imports/sqlite_import_repository.hpp"
 #include "notes/note.hpp"
 #include "notes/note_service.hpp"
 #include "notes/sqlite_note_repository.hpp"
@@ -111,6 +115,8 @@ public:
 
     exports::CopyWithdrawal withdraw_copy(const exports::WithdrawCopyInput& input);
     std::vector<exports::WithdrawnCopyView> list_withdrawn_copies(int limit = 100, int offset = 0) const;
+    imports::ImportReport import_csv(const imports::ImportRequest& request);
+    imports::ImportReport get_import_report(const std::string& public_id) const;
 
     audit::AuditEvent log_audit_event(const audit::AuditLogInput& input);
     std::vector<audit::AuditEvent> get_recent_audit_events(int limit = 100) const;
@@ -153,4 +159,7 @@ private:
     reports::ReportService report_service_;
     exports::SqliteExportRepository export_repository_;
     exports::ExportService export_service_;
+    imports::SqliteImportRepository import_repository_;
+    imports::CsvImportParser csv_import_parser_;
+    imports::ImportService import_service_;
 };

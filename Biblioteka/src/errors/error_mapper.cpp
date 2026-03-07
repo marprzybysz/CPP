@@ -27,6 +27,8 @@ std::string to_user_message(const std::exception& ex) {
                 return "Audit logging operation failed.";
             case ErrorCode::Export:
                 return "Export/withdrawal operation failed.";
+            case ErrorCode::Import:
+                return "Import operation failed.";
             default:
                 return "Unexpected application error.";
         }

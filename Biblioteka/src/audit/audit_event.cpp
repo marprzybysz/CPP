@@ -22,6 +22,8 @@ std::string to_string(AuditModule module) {
             return "SUPPLY";
         case AuditModule::Export:
             return "EXPORT";
+        case AuditModule::Import:
+            return "IMPORT";
         default:
             throw errors::ValidationError("Unsupported audit module");
     }
@@ -51,6 +53,9 @@ AuditModule audit_module_from_string(const std::string& raw) {
     }
     if (raw == "EXPORT") {
         return AuditModule::Export;
+    }
+    if (raw == "IMPORT") {
+        return AuditModule::Import;
     }
 
     throw errors::ValidationError("Unsupported audit module: " + raw);

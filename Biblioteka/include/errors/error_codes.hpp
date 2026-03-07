@@ -13,6 +13,7 @@ enum class ErrorCode {
     Report,
     Audit,
     Export,
+    Import,
 };
 
 } // namespace errors

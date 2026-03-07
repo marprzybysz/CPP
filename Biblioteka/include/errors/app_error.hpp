@@ -83,4 +83,10 @@ public:
         : AppError(ErrorCode::Export, std::move(message)) {}
 };
 
+class ImportError : public AppError {
+public:
+    explicit ImportError(std::string message)
+        : AppError(ErrorCode::Import, std::move(message)) {}
+};
+
 } // namespace errors

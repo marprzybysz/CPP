@@ -45,7 +45,15 @@ Library::Library(Db& db)
       report_repository_(db_),
       report_service_(report_repository_, id_generator_),
       export_repository_(db_),
-      export_service_(export_repository_) {}
+      export_service_(export_repository_),
+      import_repository_(db_),
+      csv_import_parser_(),
+      import_service_(import_repository_,
+                      book_service_,
+                      reader_service_,
+                      audit_service_,
+                      id_generator_,
+                      std::vector<imports::ImportParser*>{&csv_import_parser_}) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
     books::Book created = book_service_.add_book(input);
@@ -343,6 +351,16 @@ exports::CopyWithdrawal Library::withdraw_copy(const exports::WithdrawCopyInput&
 
 std::vector<exports::WithdrawnCopyView> Library::list_withdrawn_copies(int limit, int offset) const {
     return export_service_.list_withdrawn_copies(limit, offset);
+}
+
+imports::ImportReport Library::import_csv(const imports::ImportRequest& request) {
+    imports::ImportRequest normalized = request;
+    normalized.format = imports::ImportFormat::Csv;
+    return import_service_.import_data(normalized);
+}
+
+imports::ImportReport Library::get_import_report(const std::string& public_id) const {
+    return import_service_.get_import_report(public_id);
 }
 
 audit::AuditEvent Library::log_audit_event(const audit::AuditLogInput& input) {

@@ -18,6 +18,7 @@ enum class IdType {
     Location,
     Note,
     Inventory,
+    Import,
 };
 
 struct IdRule {
