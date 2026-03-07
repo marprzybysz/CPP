@@ -1,7 +1,7 @@
 # Biblioteka
 
 ## Opis projektu
-`Biblioteka` to backend systemu bibliotecznego napisany w C++20. Projekt jest modułowy, oparty o wzorzec `service + repository`, a dane są przechowywane w SQLite.
+`Biblioteka` to system biblioteczny napisany w C++20. Projekt jest modułowy, oparty o wzorzec `service + repository`, a dane są przechowywane w SQLite, a warstwa TUI zapewnia terminalowy interfejs użytkownika.
 
 System obejmuje zarządzanie katalogiem książek, egzemplarzami, czytelnikami, lokalizacją, rezerwacjami, inwentaryzacją, raportowaniem, audytem, importem danych, wycofywaniem egzemplarzy oraz globalnym wyszukiwaniem.
 
@@ -20,6 +20,7 @@ Główne zasady architektury:
 - Każdy moduł ma własne modele domenowe (`include/<module>`), serwis (`*Service`) i repozytorium (`*Repository`).
 - Implementacje SQLite są oddzielone od logiki biznesowej (`Sqlite*Repository`).
 - Logika biznesowa i walidacje są w serwisach, a mapowanie SQL w repozytoriach.
+- Warstwa `tui` jest adapterem UI nad fasadą `Library` i nie zawiera logiki domenowej.
 - Identyfikatory systemowe są generowane centralnie przez `common::SystemIdGenerator`.
 - Błędy domenowe i komunikaty użytkownika są obsługiwane przez moduł `errors`.
 
@@ -45,7 +46,8 @@ Biblioteka/
 │   ├── exports/
 │   ├── imports/
 │   ├── notes/
-│   └── reputation/
+│   ├── reputation/
+│   └── tui/
 └── src/
     ├── main.cpp
     ├── db.cpp
@@ -64,7 +66,8 @@ Biblioteka/
     ├── exports/
     ├── imports/
     ├── notes/
-    └── reputation/
+    ├── reputation/
+    └── tui/
 ```
 
 ## Opis wszystkich modułów
@@ -102,7 +105,18 @@ cmake --build build
 ./build/cpp_biblioteka
 ```
 
-Aplikacja tworzy/otwiera lokalną bazę `library.db` i inicjalizuje schemat.
+Aplikacja tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat i uruchamia menu TUI.
+
+## Warstwa TUI
+TUI jest podzielone na:
+- `tui/controllers`: przypadki użycia UI, które wywołują `Library`,
+- `tui/screens`: widoki terminalowe i obsługa wejścia użytkownika,
+- `tui/TuiApplication`: routing i główna pętla menu.
+
+Aktualnie dostępne:
+- `Dashboard`
+- `Książki` (lista, wyszukiwanie po autorze, dodawanie)
+- placeholdery pod kolejne moduły: egzemplarze, czytelnicy, wypożyczenia, rezerwacje, lokalizacje, inwentaryzacja, raporty, notatki, logi zdarzeń.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:

@@ -49,6 +49,12 @@ add_executable(cpp_biblioteka
     src/reservations/sqlite_reservation_repository.cpp
     src/errors/error_mapper.cpp
     src/errors/error_logger.cpp
+    src/tui/controllers/dashboard_controller.cpp
+    src/tui/controllers/books_controller.cpp
+    src/tui/screens/dashboard_screen.cpp
+    src/tui/screens/books_screen.cpp
+    src/tui/screens/placeholder_screen.cpp
+    src/tui/tui_application.cpp
 )
 
 target_include_directories(cpp_biblioteka PRIVATE include)
