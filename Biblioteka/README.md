@@ -107,6 +107,11 @@ cmake --build build
 
 Aplikacja tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat i uruchamia pętlę TUI.
 
+## Dokumentacja
+Projekt zawiera osobną dokumentację użytkownika interfejsu terminalowego oraz dokumentację audytu:
+- [Przewodnik użytkownika TUI](docs/user_guide.md)
+- [Dokumentacja audytu](docs/audit.md)
+
 ## Uruchomienie TUI
 - wejście do TUI odbywa się przez `main.cpp` (`ui::Application app(library); return app.run();`),
 - po starcie aktywny jest ekran `Dashboard`,
