@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ui/controllers/books_controller.hpp"
+#include "ui/controllers/copies_controller.hpp"
 #include "ui/controllers/dashboard_controller.hpp"
 
 class Library;
@@ -22,6 +23,7 @@ private:
     ScreenManager& screen_manager_;
     DashboardController dashboard_controller_;
     BooksController books_controller_;
+    CopiesController copies_controller_;
 };
 
 } // namespace controllers

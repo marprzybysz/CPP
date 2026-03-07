@@ -15,6 +15,7 @@ public:
     explicit ListView(std::vector<std::string> items = {});
 
     void set_items(std::vector<std::string> items);
+    void set_selected_index(std::size_t index);
     void move_up();
     void move_down();
     [[nodiscard]] std::size_t selected_index() const;

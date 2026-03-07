@@ -117,7 +117,9 @@ Szkielet TUI jest podzielony na:
 - `ui/InputHandler`: mapowanie wejścia użytkownika na zdarzenia nawigacji,
 - `ui/components/Menu`: współdzielony komponent menu,
 - `ui/controllers/ApplicationController`: bootstrap ekranów,
-- `ui/controllers/DashboardController`: dostarcza metryki do dashboardu.
+- `ui/controllers/DashboardController`: dostarcza metryki do dashboardu,
+- `ui/controllers/BooksController`: adapter przypadków użycia modułu książek,
+- `ui/controllers/CopiesController`: adapter przypadków użycia modułu egzemplarzy.
 
 Wspólne komponenty TUI (`ui/components`) gotowe do użycia przez moduły książek, czytelników i wypożyczeń:
 - `Header`
@@ -169,6 +171,25 @@ Workflow:
    - `clear` aby wyczyścić kryteria.
 5. Filtrowanie (`f`) przełącza `include_archived`.
 6. `q` lub `esc` wraca do poprzedniego ekranu.
+
+## Ekran TUI: Egzemplarze
+Moduł ekranów egzemplarzy:
+- `CopyListScreen`: listowanie egzemplarzy i filtrowanie po książce/statusie,
+- `CopyDetailsScreen`: podgląd szczegółów egzemplarza,
+- `CopyFormScreen`: dodawanie nowego egzemplarza,
+- `CopyStatusScreen`: zmiana statusu egzemplarza,
+- `CopyLocationScreen`: zmiana aktualnej/docelowej lokalizacji.
+
+Workflow:
+1. Z `Dashboard` wybierz `Egzemplarze`.
+2. W `CopyListScreen` używaj `góra/dół` do wyboru i `Enter` do szczegółów.
+3. Filtrowanie po książce aktywuj przez `/` (wpisz frazę lub `clear`).
+4. Filtrowanie po statusie przełączaj przez `f`.
+5. Operacje na zaznaczonym egzemplarzu:
+   - `s` zmiana statusu,
+   - `l` zmiana lokalizacji,
+   - `a` dodanie nowego egzemplarza.
+6. W widoku listy i szczegółów `q`/`esc` wraca do poprzedniego ekranu.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:

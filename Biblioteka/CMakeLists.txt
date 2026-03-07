@@ -67,10 +67,16 @@ add_executable(cpp_biblioteka
     src/ui/components/table_view.cpp
     src/ui/controllers/application_controller.cpp
     src/ui/controllers/books_controller.cpp
+    src/ui/controllers/copies_controller.cpp
     src/ui/controllers/dashboard_controller.cpp
     src/ui/screens/book_details_screen.cpp
     src/ui/screens/book_form_screen.cpp
     src/ui/screens/book_list_screen.cpp
+    src/ui/screens/copy_details_screen.cpp
+    src/ui/screens/copy_form_screen.cpp
+    src/ui/screens/copy_list_screen.cpp
+    src/ui/screens/copy_location_screen.cpp
+    src/ui/screens/copy_status_screen.cpp
     src/ui/screens/dashboard_screen.cpp
     src/ui/screens/placeholder_screen.cpp
 )

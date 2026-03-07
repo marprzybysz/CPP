@@ -1,5 +1,6 @@
 #include "ui/components/list_view.hpp"
 
+#include <algorithm>
 #include <utility>
 
 #include "ui/renderer.hpp"
@@ -19,6 +20,15 @@ void ListView::set_items(std::vector<std::string> items) {
     if (selected_index_ >= items_.size()) {
         selected_index_ = items_.size() - 1;
     }
+}
+
+void ListView::set_selected_index(std::size_t index) {
+    if (items_.empty()) {
+        selected_index_ = 0;
+        return;
+    }
+
+    selected_index_ = std::min(index, items_.size() - 1);
 }
 
 void ListView::move_up() {
