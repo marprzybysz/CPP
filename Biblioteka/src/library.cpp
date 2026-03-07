@@ -13,6 +13,8 @@ Library::Library(Db& db)
       location_service_(location_repository_, id_generator_),
       reader_repository_(db_),
       reader_service_(reader_repository_, id_generator_),
+      reputation_repository_(db_),
+      reputation_service_(reputation_repository_),
       note_repository_(db_),
       note_service_(note_repository_, id_generator_),
       reservation_repository_(db_),
@@ -125,6 +127,25 @@ readers::Reader Library::block_reader(const std::string& public_id, const std::s
 
 readers::Reader Library::unblock_reader(const std::string& public_id) {
     return reader_service_.unblock_account(public_id);
+}
+
+int Library::get_reader_reputation(int reader_id) const {
+    return reputation_service_.get_current_reputation(reader_id);
+}
+
+std::vector<reputation::ReputationChange> Library::get_reader_reputation_history(int reader_id, int limit, int offset) const {
+    return reputation_service_.get_reputation_history(reader_id, limit, offset);
+}
+
+reputation::ReputationChange Library::apply_reputation_manual_adjustment(int reader_id,
+                                                                         int change_value,
+                                                                         const std::string& reason,
+                                                                         const std::optional<int>& related_loan_id) {
+    return reputation_service_.apply_manual_adjustment(reader_id, change_value, reason, related_loan_id);
+}
+
+reputation::ReputationChange Library::apply_reputation_on_loan_return(const reputation::LoanReturnEvent& event) {
+    return reputation_service_.apply_on_loan_return(event);
 }
 
 notes::Note Library::add_note(const notes::CreateNoteInput& input) {

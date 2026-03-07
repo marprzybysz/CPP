@@ -16,6 +16,9 @@
 #include "readers/reader.hpp"
 #include "readers/reader_service.hpp"
 #include "readers/sqlite_reader_repository.hpp"
+#include "reputation/reputation.hpp"
+#include "reputation/reputation_service.hpp"
+#include "reputation/sqlite_reputation_repository.hpp"
 #include "reservations/reservation.hpp"
 #include "reservations/reservation_service.hpp"
 #include "reservations/sqlite_reservation_repository.hpp"
@@ -60,6 +63,15 @@ public:
     readers::Reader get_reader_details(const std::string& public_id) const;
     readers::Reader block_reader(const std::string& public_id, const std::string& reason);
     readers::Reader unblock_reader(const std::string& public_id);
+    int get_reader_reputation(int reader_id) const;
+    std::vector<reputation::ReputationChange> get_reader_reputation_history(int reader_id,
+                                                                            int limit = 100,
+                                                                            int offset = 0) const;
+    reputation::ReputationChange apply_reputation_manual_adjustment(int reader_id,
+                                                                    int change_value,
+                                                                    const std::string& reason,
+                                                                    const std::optional<int>& related_loan_id = std::nullopt);
+    reputation::ReputationChange apply_reputation_on_loan_return(const reputation::LoanReturnEvent& event);
 
     notes::Note add_note(const notes::CreateNoteInput& input);
     std::vector<notes::Note> get_notes_for_target(const notes::NotesForTargetQuery& query) const;
@@ -83,6 +95,8 @@ private:
     locations::LocationService location_service_;
     readers::SqliteReaderRepository reader_repository_;
     readers::ReaderService reader_service_;
+    reputation::SqliteReputationRepository reputation_repository_;
+    reputation::ReputationService reputation_service_;
     notes::SqliteNoteRepository note_repository_;
     notes::NoteService note_service_;
     reservations::SqliteReservationRepository reservation_repository_;

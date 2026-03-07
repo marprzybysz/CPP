@@ -175,6 +175,24 @@ void Db::init_schema() {
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reader_notes_reader ON reader_notes(reader_public_id);",
                   "failed to create idx_reader_notes_reader");
 
+    const char* create_reader_reputation_history_sql =
+        "CREATE TABLE IF NOT EXISTS reader_reputation_history ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "reader_id INTEGER NOT NULL,"
+        "change_value INTEGER NOT NULL,"
+        "reason TEXT NOT NULL,"
+        "related_loan_id INTEGER,"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "FOREIGN KEY(reader_id) REFERENCES readers(id)"
+        ");";
+
+    exec_or_throw(db_, create_reader_reputation_history_sql, "failed to create reader_reputation_history table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_reader_reputation_history_reader ON reader_reputation_history(reader_id);",
+                  "failed to create idx_reader_reputation_history_reader");
+    exec_or_throw(db_,
+                  "CREATE INDEX IF NOT EXISTS idx_reader_reputation_history_created_at ON reader_reputation_history(created_at);",
+                  "failed to create idx_reader_reputation_history_created_at");
+
     const char* create_notes_sql =
         "CREATE TABLE IF NOT EXISTS notes ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"

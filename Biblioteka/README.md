@@ -56,6 +56,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `reader_repository.hpp`
 - `sqlite_reader_repository.hpp`
 - `reader_service.hpp`
+- `reputation/`
+- `reputation.hpp`
+- `reputation_repository.hpp`
+- `sqlite_reputation_repository.hpp`
+- `reputation_service.hpp`
 - `errors/`
 - `app_error.hpp`
 - `error_codes.hpp`
@@ -90,6 +95,9 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `reader.cpp`
 - `reader_service.cpp`
 - `sqlite_reader_repository.cpp`
+- `reputation/`
+- `reputation_service.cpp`
+- `sqlite_reputation_repository.cpp`
 - `errors/`
 - `error_logger.cpp`
 - `error_mapper.cpp`
@@ -133,6 +141,7 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `reservations::ReservationService`: logika rezerwacji i wykrywania aktywnej kolejki po zwrocie
 - `readers::SqliteReaderRepository`: warstwa danych czytelników
 - `readers::ReaderService`: logika kont czytelników (walidacja e-mail, generacja kart, blokady)
+- `reputation::ReputationService`: logika punktacji reputacji i automatycznej blokady
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
 
 ## Moduł katalogu książek
@@ -283,6 +292,39 @@ Reguły:
 Miejsce pod kolejne moduły:
 - `reader_loan_history` (historia wypożyczeń)
 - `reader_notes` (notatki o czytelniku)
+
+## Moduł reputacji czytelników
+
+Założenia:
+- oddanie książki w terminie zwiększa reputację
+- oddanie po przedłużeniu daje mniejszy bonus
+- opóźnienie obniża reputację
+- kara naliczana jest za każdy pełny tydzień zwłoki
+- przy niskiej reputacji czytelnik jest automatycznie blokowany
+
+Konfigurowalne parametry (`reputation::ReputationConfig`):
+- `on_time_return_bonus`
+- `extended_return_bonus`
+- `late_penalty_per_full_week`
+- `auto_block_threshold`
+- `auto_block_reason`
+
+Historia zmian reputacji (`reader_reputation_history`):
+- `reader_id`
+- `change_value`
+- `reason`
+- `related_loan_id`
+- `created_at`
+
+API modułu:
+- pobranie aktualnej reputacji czytelnika
+- pobranie historii reputacji
+- automatyczna aktualizacja reputacji przy zwrocie książki (`LoanReturnEvent`)
+- ręczna korekta reputacji przez operatora/admina
+
+Integracja:
+- moduł aktualizuje pola `readers.reputation_points`, `readers.is_blocked`, `readers.block_reason`
+- posiada punkt integracyjny pod moduł wypożyczeń przez `apply_reputation_on_loan_return(...)`
 
 ## Moduł notatek
 
