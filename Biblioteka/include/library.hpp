@@ -10,6 +10,9 @@
 #include "locations/location.hpp"
 #include "locations/location_service.hpp"
 #include "locations/sqlite_location_repository.hpp"
+#include "inventory/inventory.hpp"
+#include "inventory/inventory_service.hpp"
+#include "inventory/sqlite_inventory_repository.hpp"
 #include "notes/note.hpp"
 #include "notes/note_service.hpp"
 #include "notes/sqlite_note_repository.hpp"
@@ -57,6 +60,12 @@ public:
     std::vector<locations::LocationNode> get_location_tree() const;
     std::vector<copies::BookCopy> get_location_copies(const std::string& public_id) const;
 
+    inventory::InventorySession start_inventory(const inventory::StartInventoryInput& input);
+    inventory::InventoryScannedCopy register_inventory_scan(const std::string& session_public_id,
+                                                            const inventory::RegisterScannedCopyInput& input);
+    inventory::InventoryResult finish_inventory(const std::string& session_public_id, const inventory::FinishInventoryInput& input);
+    inventory::InventoryResult get_inventory_result(const std::string& session_public_id) const;
+
     readers::Reader add_reader(const readers::CreateReaderInput& input);
     readers::Reader edit_reader(const std::string& public_id, const readers::UpdateReaderInput& input);
     std::vector<readers::Reader> search_readers(const readers::ReaderQuery& query) const;
@@ -93,6 +102,8 @@ private:
     copies::CopyService copy_service_;
     locations::SqliteLocationRepository location_repository_;
     locations::LocationService location_service_;
+    inventory::SqliteInventoryRepository inventory_repository_;
+    inventory::InventoryService inventory_service_;
     readers::SqliteReaderRepository reader_repository_;
     readers::ReaderService reader_service_;
     reputation::SqliteReputationRepository reputation_repository_;

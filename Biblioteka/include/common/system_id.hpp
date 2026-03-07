@@ -17,6 +17,7 @@ enum class IdType {
     Report,
     Location,
     Note,
+    Inventory,
 };
 
 struct IdRule {

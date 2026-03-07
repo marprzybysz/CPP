@@ -46,6 +46,8 @@ IdRule rule_for(IdType type) {
             return IdRule{"LOC", true, 6};
         case IdType::Note:
             return IdRule{"NOTE", true, 6};
+        case IdType::Inventory:
+            return IdRule{"INV", true, 6};
         default:
             throw std::invalid_argument("unsupported identifier type");
     }

@@ -1,7 +1,7 @@
 # Biblioteka
 
 Projekt `Biblioteka` to backend/logika systemu zarządzania biblioteką napisany w C++20.
-Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera podstawowy moduł katalogu książek i spójny moduł błędów.
+Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, lokalizacji, inwentaryzacji i błędów.
 
 ## Cel projektu
 
@@ -41,6 +41,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `location_repository.hpp`
 - `sqlite_location_repository.hpp`
 - `location_service.hpp`
+- `inventory/`
+- `inventory.hpp`
+- `inventory_repository.hpp`
+- `sqlite_inventory_repository.hpp`
+- `inventory_service.hpp`
 - `notes/`
 - `note.hpp`
 - `note_repository.hpp`
@@ -83,6 +88,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `location.cpp`
 - `location_service.cpp`
 - `sqlite_location_repository.cpp`
+- `inventory/`
+- `inventory.cpp`
+- `inventory_service.cpp`
+- `sqlite_inventory_repository.cpp`
 - `notes/`
 - `note.cpp`
 - `note_service.cpp`
@@ -135,6 +144,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `copies::CopyService`: logika biznesowa egzemplarzy (walidacja, przejścia statusów, lokalizacja)
 - `locations::SqliteLocationRepository`: warstwa danych lokalizacji i przypisanych egzemplarzy
 - `locations::LocationService`: logika hierarchii lokalizacji i operacji drzewiastych
+- `inventory::SqliteInventoryRepository`: warstwa danych sesji inwentaryzacji, skanów i pozycji wynikowych
+- `inventory::InventoryService`: logika biznesowa spisu z natury dla `ROOM`/`RACK`/`SHELF`
 - `notes::SqliteNoteRepository`: warstwa danych notatek generycznych
 - `notes::NoteService`: logika tworzenia/odczytu/archiwizacji notatek
 - `reservations::SqliteReservationRepository`: warstwa danych rezerwacji
@@ -256,6 +267,33 @@ Reguły hierarchii:
 Integracja z egzemplarzami:
 - `book_copies.current_location_id` i `book_copies.target_location_id` przechowują `locations.public_id`
 - `LocationService::get_location_copies(...)` zwraca egzemplarze, dla których lokalizacja jest bieżąca lub docelowa
+
+## Moduł inwentaryzacji
+
+Spis z natury jest wspierany dla:
+- `SHELF`
+- `RACK`
+- `ROOM`
+
+Kluczowe encje:
+- `inventory::InventorySession` (kto rozpoczął, kiedy rozpoczęto/zakończono, lokalizacja, status, wynik końcowy)
+- `inventory::InventoryItem` (pozycja inwentaryzacyjna z klasyfikacją wyniku)
+
+Obsługiwane operacje:
+- rozpoczęcie inwentaryzacji (`start_inventory`)
+- rejestrowanie skanów egzemplarzy (`register_inventory_scan`)
+- zakończenie inwentaryzacji i wyliczenie wyniku (`finish_inventory`)
+- pobranie wyniku (`get_inventory_result`)
+
+Klasyfikacja wyniku:
+- `ON_SHELF`
+- `JUSTIFIED` (poza półką, ale uzasadnione)
+- `MISSING`
+
+Integracja:
+- z lokalizacjami: sesja wskazuje lokalizację i typ zakresu (`ROOM`/`RACK`/`SHELF`), obsługiwane są poddrzewa lokalizacji
+- z egzemplarzami: skany rozpoznają egzemplarze po `public_id` lub `inventory_number` (przygotowane pod przyszłe dekodowanie kodów)
+- z modułem błędów: walidacje i błędy biznesowe zgłaszane przez `errors::ValidationError`, `errors::NotFoundError`, `errors::InventoryError`
 
 ## Moduł czytelników
 

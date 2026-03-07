@@ -11,6 +11,8 @@ Library::Library(Db& db)
       copy_service_(copy_repository_, id_generator_),
       location_repository_(db_),
       location_service_(location_repository_, id_generator_),
+      inventory_repository_(db_),
+      inventory_service_(inventory_repository_, id_generator_),
       reader_repository_(db_),
       reader_service_(reader_repository_, id_generator_),
       reputation_repository_(db_),
@@ -103,6 +105,24 @@ std::vector<locations::LocationNode> Library::get_location_tree() const {
 
 std::vector<copies::BookCopy> Library::get_location_copies(const std::string& public_id) const {
     return location_service_.get_location_copies(public_id);
+}
+
+inventory::InventorySession Library::start_inventory(const inventory::StartInventoryInput& input) {
+    return inventory_service_.start_inventory(input);
+}
+
+inventory::InventoryScannedCopy Library::register_inventory_scan(const std::string& session_public_id,
+                                                                 const inventory::RegisterScannedCopyInput& input) {
+    return inventory_service_.register_scanned_copy(session_public_id, input);
+}
+
+inventory::InventoryResult Library::finish_inventory(const std::string& session_public_id,
+                                                     const inventory::FinishInventoryInput& input) {
+    return inventory_service_.finish_inventory(session_public_id, input);
+}
+
+inventory::InventoryResult Library::get_inventory_result(const std::string& session_public_id) const {
+    return inventory_service_.get_inventory_result(session_public_id);
 }
 
 readers::Reader Library::add_reader(const readers::CreateReaderInput& input) {

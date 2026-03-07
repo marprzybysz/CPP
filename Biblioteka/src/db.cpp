@@ -318,4 +318,65 @@ void Db::init_schema() {
     exec_or_throw(db_,
                   "CREATE INDEX IF NOT EXISTS idx_copy_location_history_copy_id ON copy_location_history(copy_public_id);",
                   "failed to create idx_copy_location_history_copy_id");
+
+    const char* create_inventory_sessions_sql =
+        "CREATE TABLE IF NOT EXISTS inventory_sessions ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "location_public_id TEXT NOT NULL,"
+        "scope_type TEXT NOT NULL CHECK(scope_type IN ('ROOM','RACK','SHELF')),"
+        "status TEXT NOT NULL CHECK(status IN ('IN_PROGRESS','COMPLETED')),"
+        "started_by TEXT NOT NULL,"
+        "started_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "finished_at TEXT,"
+        "on_shelf_count INTEGER NOT NULL DEFAULT 0,"
+        "justified_count INTEGER NOT NULL DEFAULT 0,"
+        "missing_count INTEGER NOT NULL DEFAULT 0,"
+        "summary_result TEXT NOT NULL DEFAULT '',"
+        "FOREIGN KEY(location_public_id) REFERENCES locations(public_id)"
+        ");";
+
+    const char* create_inventory_scans_sql =
+        "CREATE TABLE IF NOT EXISTS inventory_scans ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "session_public_id TEXT NOT NULL,"
+        "scan_code TEXT NOT NULL,"
+        "copy_public_id TEXT NOT NULL,"
+        "scanned_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "note TEXT NOT NULL DEFAULT '',"
+        "UNIQUE(session_public_id, copy_public_id),"
+        "FOREIGN KEY(session_public_id) REFERENCES inventory_sessions(public_id),"
+        "FOREIGN KEY(copy_public_id) REFERENCES book_copies(public_id)"
+        ");";
+
+    const char* create_inventory_items_sql =
+        "CREATE TABLE IF NOT EXISTS inventory_items ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "session_public_id TEXT NOT NULL,"
+        "copy_public_id TEXT NOT NULL,"
+        "inventory_number TEXT NOT NULL,"
+        "expected_location_public_id TEXT,"
+        "current_location_public_id TEXT,"
+        "scanned INTEGER NOT NULL DEFAULT 0,"
+        "result TEXT NOT NULL CHECK(result IN ('ON_SHELF','JUSTIFIED','MISSING')),"
+        "justification TEXT NOT NULL DEFAULT '',"
+        "decided_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "FOREIGN KEY(session_public_id) REFERENCES inventory_sessions(public_id),"
+        "FOREIGN KEY(copy_public_id) REFERENCES book_copies(public_id),"
+        "FOREIGN KEY(expected_location_public_id) REFERENCES locations(public_id),"
+        "FOREIGN KEY(current_location_public_id) REFERENCES locations(public_id)"
+        ");";
+
+    exec_or_throw(db_, create_inventory_sessions_sql, "failed to create inventory_sessions table");
+    exec_or_throw(db_, create_inventory_scans_sql, "failed to create inventory_scans table");
+    exec_or_throw(db_, create_inventory_items_sql, "failed to create inventory_items table");
+
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_inventory_sessions_location ON inventory_sessions(location_public_id);",
+                  "failed to create idx_inventory_sessions_location");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_inventory_sessions_status ON inventory_sessions(status);",
+                  "failed to create idx_inventory_sessions_status");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_inventory_scans_session ON inventory_scans(session_public_id);",
+                  "failed to create idx_inventory_scans_session");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_inventory_items_session ON inventory_items(session_public_id);",
+                  "failed to create idx_inventory_items_session");
 }
