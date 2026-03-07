@@ -150,6 +150,7 @@ void BookListScreen::reload_results() {
     } catch (const std::exception& e) {
         results_.clear();
         results_view_.set_items({});
+        controller_.clear_selected_book();
         status_bar_.set(errors::to_user_message(e), components::StatusType::Error);
     }
 }
@@ -157,6 +158,7 @@ void BookListScreen::reload_results() {
 void BookListScreen::sync_selected_book() {
     const auto index = selected_result_index();
     if (!index.has_value()) {
+        controller_.clear_selected_book();
         return;
     }
     controller_.set_selected_book(results_[*index].public_id);

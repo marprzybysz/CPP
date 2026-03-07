@@ -39,6 +39,7 @@ public:
     books::Book update_book(const std::string& public_id, const books::UpdateBookInput& input);
 
     void set_selected_book(const std::string& public_id);
+    void clear_selected_book();
     [[nodiscard]] const std::optional<std::string>& selected_book() const;
 
     void begin_create();

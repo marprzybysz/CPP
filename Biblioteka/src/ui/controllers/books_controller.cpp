@@ -49,6 +49,10 @@ void BooksController::set_selected_book(const std::string& public_id) {
     selected_book_ = public_id;
 }
 
+void BooksController::clear_selected_book() {
+    selected_book_.reset();
+}
+
 const std::optional<std::string>& BooksController::selected_book() const {
     return selected_book_;
 }
