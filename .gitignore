@@ -42,3 +42,9 @@
 
 # CMake build outputs
 /Biblioteka/build/
+
+# Local SQLite files
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
