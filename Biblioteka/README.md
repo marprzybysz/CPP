@@ -66,6 +66,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `reputation_repository.hpp`
 - `sqlite_reputation_repository.hpp`
 - `reputation_service.hpp`
+- `reports/`
+- `report.hpp`
+- `report_repository.hpp`
+- `sqlite_report_repository.hpp`
+- `report_service.hpp`
 - `errors/`
 - `app_error.hpp`
 - `error_codes.hpp`
@@ -107,6 +112,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `reputation/`
 - `reputation_service.cpp`
 - `sqlite_reputation_repository.cpp`
+- `reports/`
+- `report.cpp`
+- `report_service.cpp`
+- `sqlite_report_repository.cpp`
 - `errors/`
 - `error_logger.cpp`
 - `error_mapper.cpp`
@@ -153,6 +162,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `readers::SqliteReaderRepository`: warstwa danych czytelników
 - `readers::ReaderService`: logika kont czytelników (walidacja e-mail, generacja kart, blokady)
 - `reputation::ReputationService`: logika punktacji reputacji i automatycznej blokady
+- `reports::SqliteReportRepository`: warstwa danych raportów, snapshotów i bazy pod eksport CSV
+- `reports::ReportService`: logika generowania raportów operacyjnych i archiwizacji wyników
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
 
 ## Moduł katalogu książek
@@ -294,6 +305,32 @@ Integracja:
 - z lokalizacjami: sesja wskazuje lokalizację i typ zakresu (`ROOM`/`RACK`/`SHELF`), obsługiwane są poddrzewa lokalizacji
 - z egzemplarzami: skany rozpoznają egzemplarze po `public_id` lub `inventory_number` (przygotowane pod przyszłe dekodowanie kodów)
 - z modułem błędów: walidacje i błędy biznesowe zgłaszane przez `errors::ValidationError`, `errors::NotFoundError`, `errors::InventoryError`
+
+## Moduł raportów
+
+Obsługiwane raporty:
+- przetrzymane książki (`OVERDUE_BOOKS`)
+- niegrzeczni czytelnicy (`DELINQUENT_READERS`)
+- najczęściej wypożyczane książki (`MOST_BORROWED_BOOKS`)
+- stan inwentaryzacji (`INVENTORY_STATE`)
+- książki archiwalne (`ARCHIVED_BOOKS`)
+- egzemplarze w naprawie (`COPIES_IN_REPAIR`)
+
+Założenia techniczne:
+- każdy raport ma własne struktury wynikowe w `reports::report.hpp`
+- wszystkie raporty przechodzą przez `reports::ReportService`
+- raporty wspierają filtrowanie po przedziale dat (`DateRangeFilter`)
+- raport może zostać zapisany jako snapshot z `public_id` (`RPT-YYYY-NNNNNN`)
+
+Integracja:
+- z wypożyczeniami/rezerwacjami: dane z `reservations` i `copy_status_history`
+- z czytelnikami: dane z `readers`
+- z egzemplarzami: dane z `book_copies`
+- z inwentaryzacją: dane z `inventory_sessions`
+
+Baza pod przyszły eksport CSV:
+- `report_snapshots`: przechowuje metadane i payload raportu
+- `report_exports`: kolejka/stan eksportów (`CSV`, `PENDING/DONE/FAILED`)
 
 ## Moduł czytelników
 

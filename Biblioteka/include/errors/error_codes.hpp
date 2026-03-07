@@ -10,6 +10,7 @@ enum class ErrorCode {
     Copy,
     Loan,
     Inventory,
+    Report,
 };
 
 } // namespace errors

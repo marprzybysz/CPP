@@ -29,6 +29,9 @@ add_executable(cpp_biblioteka
     src/readers/sqlite_reader_repository.cpp
     src/reputation/reputation_service.cpp
     src/reputation/sqlite_reputation_repository.cpp
+    src/reports/report.cpp
+    src/reports/report_service.cpp
+    src/reports/sqlite_report_repository.cpp
     src/reservations/reservation.cpp
     src/reservations/reservation_service.cpp
     src/reservations/sqlite_reservation_repository.cpp

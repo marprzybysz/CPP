@@ -65,4 +65,10 @@ public:
         : AppError(ErrorCode::Inventory, std::move(message)) {}
 };
 
+class ReportError : public AppError {
+public:
+    explicit ReportError(std::string message)
+        : AppError(ErrorCode::Report, std::move(message)) {}
+};
+
 } // namespace errors

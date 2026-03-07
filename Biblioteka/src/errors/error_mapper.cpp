@@ -21,6 +21,8 @@ std::string to_user_message(const std::exception& ex) {
                 return "Loan operation failed.";
             case ErrorCode::Inventory:
                 return "Inventory operation failed.";
+            case ErrorCode::Report:
+                return "Reporting operation failed.";
             default:
                 return "Unexpected application error.";
         }

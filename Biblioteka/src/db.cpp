@@ -379,4 +379,39 @@ void Db::init_schema() {
                   "failed to create idx_inventory_scans_session");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_inventory_items_session ON inventory_items(session_public_id);",
                   "failed to create idx_inventory_items_session");
+
+    const char* create_report_snapshots_sql =
+        "CREATE TABLE IF NOT EXISTS report_snapshots ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "public_id TEXT NOT NULL UNIQUE,"
+        "type TEXT NOT NULL CHECK(type IN ('OVERDUE_BOOKS','DELINQUENT_READERS','MOST_BORROWED_BOOKS','INVENTORY_STATE',"
+        "'ARCHIVED_BOOKS','COPIES_IN_REPAIR')),"
+        "date_from TEXT,"
+        "date_to TEXT,"
+        "generated_by TEXT NOT NULL DEFAULT '',"
+        "payload TEXT NOT NULL DEFAULT '',"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now'))"
+        ");";
+
+    const char* create_report_exports_sql =
+        "CREATE TABLE IF NOT EXISTS report_exports ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "report_public_id TEXT NOT NULL,"
+        "format TEXT NOT NULL CHECK(format IN ('CSV')),"
+        "status TEXT NOT NULL CHECK(status IN ('PENDING','DONE','FAILED')) DEFAULT 'PENDING',"
+        "target_path TEXT,"
+        "error_message TEXT,"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "updated_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "FOREIGN KEY(report_public_id) REFERENCES report_snapshots(public_id)"
+        ");";
+
+    exec_or_throw(db_, create_report_snapshots_sql, "failed to create report_snapshots table");
+    exec_or_throw(db_, create_report_exports_sql, "failed to create report_exports table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_report_snapshots_type ON report_snapshots(type);",
+                  "failed to create idx_report_snapshots_type");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_report_snapshots_created_at ON report_snapshots(created_at);",
+                  "failed to create idx_report_snapshots_created_at");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_report_exports_report_public_id ON report_exports(report_public_id);",
+                  "failed to create idx_report_exports_report_public_id");
 }

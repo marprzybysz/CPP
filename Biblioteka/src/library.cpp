@@ -20,7 +20,9 @@ Library::Library(Db& db)
       note_repository_(db_),
       note_service_(note_repository_, id_generator_),
       reservation_repository_(db_),
-      reservation_service_(reservation_repository_, id_generator_) {}
+      reservation_service_(reservation_repository_, id_generator_),
+      report_repository_(db_),
+      report_service_(report_repository_, id_generator_) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
     return book_service_.add_book(input);
@@ -202,4 +204,28 @@ reservations::Reservation Library::expire_reservation(const std::string& public_
 
 std::optional<reservations::Reservation> Library::find_active_reservation_for_returned_copy(int copy_id) const {
     return reservation_service_.find_active_for_returned_copy(copy_id);
+}
+
+reports::OverdueBooksReport Library::generate_overdue_books_report(const reports::ReportQueryOptions& options) {
+    return report_service_.generate_overdue_books_report(options);
+}
+
+reports::DelinquentReadersReport Library::generate_delinquent_readers_report(const reports::ReportQueryOptions& options) {
+    return report_service_.generate_delinquent_readers_report(options);
+}
+
+reports::MostBorrowedBooksReport Library::generate_most_borrowed_books_report(const reports::ReportQueryOptions& options) {
+    return report_service_.generate_most_borrowed_books_report(options);
+}
+
+reports::InventoryStateReport Library::generate_inventory_state_report(const reports::ReportQueryOptions& options) {
+    return report_service_.generate_inventory_state_report(options);
+}
+
+reports::ArchivedBooksReport Library::generate_archived_books_report(const reports::ReportQueryOptions& options) {
+    return report_service_.generate_archived_books_report(options);
+}
+
+reports::CopiesInRepairReport Library::generate_copies_in_repair_report(const reports::ReportQueryOptions& options) {
+    return report_service_.generate_copies_in_repair_report(options);
 }

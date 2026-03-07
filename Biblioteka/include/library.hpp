@@ -22,6 +22,9 @@
 #include "reputation/reputation.hpp"
 #include "reputation/reputation_service.hpp"
 #include "reputation/sqlite_reputation_repository.hpp"
+#include "reports/report.hpp"
+#include "reports/report_service.hpp"
+#include "reports/sqlite_report_repository.hpp"
 #include "reservations/reservation.hpp"
 #include "reservations/reservation_service.hpp"
 #include "reservations/sqlite_reservation_repository.hpp"
@@ -93,6 +96,13 @@ public:
     reservations::Reservation expire_reservation(const std::string& public_id);
     std::optional<reservations::Reservation> find_active_reservation_for_returned_copy(int copy_id) const;
 
+    reports::OverdueBooksReport generate_overdue_books_report(const reports::ReportQueryOptions& options);
+    reports::DelinquentReadersReport generate_delinquent_readers_report(const reports::ReportQueryOptions& options);
+    reports::MostBorrowedBooksReport generate_most_borrowed_books_report(const reports::ReportQueryOptions& options);
+    reports::InventoryStateReport generate_inventory_state_report(const reports::ReportQueryOptions& options);
+    reports::ArchivedBooksReport generate_archived_books_report(const reports::ReportQueryOptions& options);
+    reports::CopiesInRepairReport generate_copies_in_repair_report(const reports::ReportQueryOptions& options);
+
 private:
     Db& db_;
     common::SystemIdGenerator id_generator_;
@@ -112,4 +122,6 @@ private:
     notes::NoteService note_service_;
     reservations::SqliteReservationRepository reservation_repository_;
     reservations::ReservationService reservation_service_;
+    reports::SqliteReportRepository report_repository_;
+    reports::ReportService report_service_;
 };
