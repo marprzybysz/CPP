@@ -6,6 +6,13 @@
 namespace {
 
 ui::Key map_input_to_key(const std::string& raw) {
+    if (raw == "\x1b[A") {
+        return ui::Key::Up;
+    }
+    if (raw == "\x1b[B") {
+        return ui::Key::Down;
+    }
+
     if (raw.empty()) {
         return ui::Key::Enter;
     }
@@ -32,7 +39,7 @@ ui::Key map_input_to_key(const std::string& raw) {
 namespace ui {
 
 InputEvent InputHandler::read_event() const {
-    std::cout << "[w/s=move, e=enter, b=back, q=quit] > ";
+    std::cout << "[strzalki/w/s=move, Enter/e=open, b=back, q=quit] > ";
 
     std::string raw;
     if (!std::getline(std::cin, raw)) {

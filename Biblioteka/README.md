@@ -115,9 +115,22 @@ Szkielet TUI jest podzielony na:
 - `ui/Renderer`: rysowanie terminala,
 - `ui/InputHandler`: mapowanie wejścia użytkownika na zdarzenia nawigacji,
 - `ui/components/Menu`: współdzielony komponent menu,
-- `ui/controllers/ApplicationController`: bootstrap ekranów.
+- `ui/controllers/ApplicationController`: bootstrap ekranów,
+- `ui/controllers/DashboardController`: dostarcza metryki do dashboardu.
 
-Aktualnie dostępny jest ekran `Dashboard` jako punkt startowy pod rozbudowę kolejnych modułów.
+Dashboard pokazuje:
+- tytuł aplikacji,
+- liczbę książek (z `Library::list_books`),
+- liczbę czytelników (z `Library::search_readers`),
+- liczbę przetrzymanych książek (z `Library::generate_overdue_books_report`),
+- placeholdery dla liczby egzemplarzy i aktywnych wypożyczeń (do czasu wystawienia liczników przez fasadę `Library`),
+- główne menu: Dashboard, Książki, Egzemplarze, Czytelnicy, Wypożyczenia, Rezerwacje, Lokalizacje, Inwentaryzacja, Raporty, Notatki, Wyjście.
+
+Nawigacja:
+- `w/s` lub strzałki góra/dół do zmiany aktywnej pozycji,
+- `Enter` (lub `e`) do wejścia w ekran,
+- `b` powrót do dashboardu,
+- `q` wyjście.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:

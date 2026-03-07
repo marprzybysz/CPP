@@ -55,7 +55,9 @@ add_executable(cpp_biblioteka
     src/ui/screen_manager.cpp
     src/ui/components/menu.cpp
     src/ui/controllers/application_controller.cpp
+    src/ui/controllers/dashboard_controller.cpp
     src/ui/screens/dashboard_screen.cpp
+    src/ui/screens/placeholder_screen.cpp
 )
 
 target_include_directories(cpp_biblioteka PRIVATE include)

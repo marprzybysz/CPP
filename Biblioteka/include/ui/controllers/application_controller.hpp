@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ui/controllers/dashboard_controller.hpp"
+
 class Library;
 
 namespace ui {
@@ -17,6 +19,7 @@ public:
 private:
     Library& library_;
     ScreenManager& screen_manager_;
+    DashboardController dashboard_controller_;
 };
 
 } // namespace controllers
