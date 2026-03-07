@@ -37,10 +37,6 @@ std::optional<std::string> normalize_optional(std::string value) {
     return value;
 }
 
-std::string optional_text(const std::optional<std::string>& value) {
-    return value.has_value() ? *value : "-";
-}
-
 } // namespace
 
 namespace ui::screens {

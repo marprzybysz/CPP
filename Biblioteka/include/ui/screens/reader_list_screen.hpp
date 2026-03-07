@@ -21,6 +21,7 @@ public:
 
     [[nodiscard]] std::string id() const override;
     [[nodiscard]] std::string title() const override;
+    [[nodiscard]] bool prefers_line_input() const override { return search_input_mode_; }
     void on_show() override;
     void render(Renderer& renderer) const override;
     void handle_input(const InputEvent& event, ScreenManager& manager) override;

@@ -20,6 +20,7 @@ public:
 
     [[nodiscard]] std::string id() const override;
     [[nodiscard]] std::string title() const override;
+    [[nodiscard]] bool prefers_line_input() const override { return filter_input_mode_ || add_input_mode_; }
     void on_show() override;
     void render(Renderer& renderer) const override;
     void handle_input(const InputEvent& event, ScreenManager& manager) override;
@@ -41,6 +42,7 @@ private:
     controllers::NotesFilterState filter_;
     std::vector<notes::Note> notes_;
     bool filter_input_mode_{false};
+    bool add_input_mode_{false};
 };
 
 } // namespace ui::screens

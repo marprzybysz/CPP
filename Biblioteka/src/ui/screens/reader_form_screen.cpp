@@ -33,7 +33,7 @@ namespace ui::screens {
 ReaderFormScreen::ReaderFormScreen(controllers::ReadersController& controller)
     : controller_(controller),
       header_("Czytelnicy", "Formularz"),
-      footer_({"gora/dol: pole", "wpisz tekst: ustaw wartosc", "enter: zapisz", "q: powrot"}) {}
+      footer_({"strzalki: zmiana pola", "pisz: edycja pola", "enter: nastepne (na ostatnim: zapisz)", "f2: zapisz", "esc: powrot"}) {}
 
 std::string ReaderFormScreen::id() const {
     return "reader_form";
@@ -62,13 +62,13 @@ void ReaderFormScreen::render(Renderer& renderer) const {
     }
 
     renderer.draw_separator();
-    renderer.draw_line("Panel akcji: enter=zapisz | q=powrot");
+    renderer.draw_line("Panel akcji: enter=nastepne (ostatnie: zapisz) | f2=zapisz | esc=powrot");
     status_bar_.render(renderer);
     footer_.render(renderer);
 }
 
 void ReaderFormScreen::handle_input(const InputEvent& event, ScreenManager& manager) {
-    if (event.key == Key::Up) {
+    if (event.key == Key::Up || event.key == Key::Left) {
         if (focused_field_ == 0) {
             focused_field_ = fields_.empty() ? 0 : fields_.size() - 1;
         } else {
@@ -78,7 +78,7 @@ void ReaderFormScreen::handle_input(const InputEvent& event, ScreenManager& mana
         return;
     }
 
-    if (event.key == Key::Down) {
+    if (event.key == Key::Down || event.key == Key::Right) {
         if (!fields_.empty()) {
             focused_field_ = (focused_field_ + 1) % fields_.size();
         }
@@ -87,19 +87,38 @@ void ReaderFormScreen::handle_input(const InputEvent& event, ScreenManager& mana
     }
 
     if (event.key == Key::Enter) {
+        if (!fields_.empty() && focused_field_ + 1 < fields_.size()) {
+            ++focused_field_;
+            rebuild_fields();
+        } else {
+            save(manager);
+        }
+        return;
+    }
+
+    if (event.key == Key::Submit) {
         save(manager);
         return;
     }
 
-    if (event.key == Key::Quit || event.key == Key::Back || event.key == Key::Escape) {
+    if (event.key == Key::Escape || event.key == Key::Back || event.key == Key::Quit) {
         manager.set_active("readers");
         return;
     }
 
-    if (!event.raw.empty()) {
-        set_field_value(focused_field_, event.raw);
+    if (event.key == Key::Backspace) {
+        if (focused_field_ < values_.size() && !values_[focused_field_].empty()) {
+            values_[focused_field_].pop_back();
+            rebuild_fields();
+            status_bar_.set("Edycja pola", components::StatusType::Info);
+        }
+        return;
+    }
+
+    if (event.raw.size() == 1 && std::isprint(static_cast<unsigned char>(event.raw.front())) != 0) {
+        values_[focused_field_] += event.raw;
         rebuild_fields();
-        status_bar_.set("Zaktualizowano pole", components::StatusType::Info);
+        status_bar_.set("Edycja pola", components::StatusType::Info);
     }
 }
 

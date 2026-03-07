@@ -47,6 +47,8 @@ std::string NotesScreen::title() const {
 }
 
 void NotesScreen::on_show() {
+    filter_input_mode_ = false;
+    add_input_mode_ = false;
     reload_notes();
 }
 
@@ -72,16 +74,29 @@ void NotesScreen::render(Renderer& renderer) const {
 }
 
 void NotesScreen::handle_input(const InputEvent& event, ScreenManager& manager) {
-    if (filter_input_mode_) {
+    if (filter_input_mode_ || add_input_mode_) {
         if (event.key == Key::Quit || event.key == Key::Back || event.key == Key::Escape) {
-            filter_input_mode_ = false;
-            status_bar_.set("Anulowano filtr notatek", components::StatusType::Info);
+            if (filter_input_mode_) {
+                filter_input_mode_ = false;
+                status_bar_.set("Anulowano filtr notatek", components::StatusType::Info);
+            } else {
+                add_input_mode_ = false;
+                status_bar_.set("Anulowano dodawanie notatki", components::StatusType::Info);
+            }
             return;
         }
 
-        apply_filter_input(event.raw);
-        filter_input_mode_ = false;
-        reload_notes();
+        if (filter_input_mode_) {
+            apply_filter_input(event.raw);
+            filter_input_mode_ = false;
+            reload_notes();
+            return;
+        }
+
+        if (add_note(event.raw)) {
+            reload_notes();
+        }
+        add_input_mode_ = false;
         return;
     }
 
@@ -105,15 +120,9 @@ void NotesScreen::handle_input(const InputEvent& event, ScreenManager& manager) 
         return;
     }
 
-    if (event.raw.rfind("a ", 0) == 0) {
-        if (add_note(event.raw.substr(2))) {
-            reload_notes();
-        }
-        return;
-    }
-
     if (!event.raw.empty() && (event.raw[0] == 'a' || event.raw[0] == 'A')) {
-        status_bar_.set("Dodaj: a target:<reader|book|copy|loan>:ID author:NAME text:TRESC", components::StatusType::Info);
+        add_input_mode_ = true;
+        status_bar_.set("Dodaj: target:<reader|book|copy|loan>:ID author:NAME text:TRESC", components::StatusType::Info);
         return;
     }
 
@@ -175,7 +184,10 @@ void NotesScreen::apply_filter_input(const std::string& raw) {
 
 bool NotesScreen::add_note(const std::string& raw) {
     try {
-        const std::string input = trim_copy(raw);
+        std::string input = trim_copy(raw);
+        if (input.rfind("a ", 0) == 0) {
+            input = trim_copy(input.substr(2));
+        }
         const auto target_pos = input.find("target:");
         const auto author_pos = input.find(" author:");
         const auto text_pos = input.find(" text:");

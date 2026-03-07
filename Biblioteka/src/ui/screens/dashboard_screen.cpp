@@ -26,7 +26,9 @@ ui::components::Menu build_dashboard_menu() {
 namespace ui::screens {
 
 DashboardScreen::DashboardScreen(controllers::DashboardController& controller)
-    : controller_(controller), menu_(build_dashboard_menu()) {}
+    : controller_(controller),
+      menu_(build_dashboard_menu()),
+      footer_({"strzalki/w/s: nawigacja", "enter: wybor", "b: dashboard", "q: wyjscie"}) {}
 
 std::string DashboardScreen::id() const {
     return "dashboard";
@@ -52,7 +54,6 @@ void DashboardScreen::on_show() {
 void DashboardScreen::render(Renderer& renderer) const {
     renderer.clear();
     renderer.draw_header(title());
-    renderer.draw_line("Nawigacja: strzalki/w/s + Enter | b=powrot | q=wyjscie");
     renderer.draw_line("");
     renderer.draw_line("Statystyki:");
     renderer.draw_line("- Liczba ksiazek: " + format_metric(stats_.books));
@@ -68,6 +69,8 @@ void DashboardScreen::render(Renderer& renderer) const {
         const std::string prefix = (i == menu_.selected_index()) ? "> " : "  ";
         renderer.draw_line(prefix + items[i].label);
     }
+
+    footer_.render(renderer);
 }
 
 void DashboardScreen::handle_input(const InputEvent& event, ScreenManager& manager) {

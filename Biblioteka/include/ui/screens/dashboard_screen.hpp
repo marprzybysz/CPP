@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ui/components/footer.hpp"
 #include "ui/components/menu.hpp"
 #include "ui/controllers/dashboard_controller.hpp"
 #include "ui/screens/screen.hpp"
@@ -22,6 +23,7 @@ private:
     controllers::DashboardController& controller_;
     controllers::DashboardStats stats_;
     components::Menu menu_;
+    components::Footer footer_;
 };
 
 } // namespace ui::screens

@@ -20,6 +20,7 @@ public:
 
     [[nodiscard]] std::string id() const override;
     [[nodiscard]] std::string title() const override;
+    [[nodiscard]] bool prefers_text_input() const override { return true; }
     void on_show() override;
     void render(Renderer& renderer) const override;
     void handle_input(const InputEvent& event, ScreenManager& manager) override;

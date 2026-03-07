@@ -16,7 +16,7 @@ int Application::run() {
         }
 
         screen->render(renderer_);
-        const InputEvent event = input_handler_.read_event();
+        const InputEvent event = input_handler_.read_event(screen->prefers_line_input(), screen->prefers_text_input());
         screen->handle_input(event, screen_manager_);
     }
 

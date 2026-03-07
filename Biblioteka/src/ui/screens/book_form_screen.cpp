@@ -12,10 +12,6 @@
 
 namespace {
 
-bool is_command(const std::string& raw, char cmd) {
-    return raw.size() == 1 && static_cast<char>(std::tolower(raw.front())) == cmd;
-}
-
 constexpr std::size_t kFieldTitle = 0;
 constexpr std::size_t kFieldAuthor = 1;
 constexpr std::size_t kFieldIsbn = 2;
@@ -30,7 +26,7 @@ namespace ui::screens {
 BookFormScreen::BookFormScreen(controllers::BooksController& controller)
     : controller_(controller),
       header_("Ksiazki", "Formularz"),
-      footer_({"gora/dol: pole", "wpisz tekst: ustaw wartosc", "enter: zapisz", "q/esc: anuluj"}) {}
+      footer_({"strzalki: zmiana pola", "pisz: edycja pola", "enter: nastepne (na ostatnim: zapisz)", "f2: zapisz", "esc: anuluj"}) {}
 
 std::string BookFormScreen::id() const {
     return "book_form";
@@ -50,7 +46,7 @@ void BookFormScreen::render(Renderer& renderer) const {
     header_.render(renderer);
 
     renderer.draw_line(form_state_.mode == controllers::BookFormMode::Create ? "Tryb: DODAWANIE" : "Tryb: EDYCJA");
-    renderer.draw_line("Wskazowka: aby ustawic wartosc pola, wpisz tekst i zatwierdz enterem.");
+    renderer.draw_line("Wskazowka: pisz aby edytowac aktywne pole, Enter przechodzi do nastepnego.");
     renderer.draw_separator();
 
     for (const auto& field : fields_) {
@@ -58,13 +54,13 @@ void BookFormScreen::render(Renderer& renderer) const {
     }
 
     renderer.draw_separator();
-    renderer.draw_line("Panel akcji: enter=zapisz | q/esc=powrot");
+    renderer.draw_line("Panel akcji: enter=nastepne (ostatnie: zapisz) | f2=zapisz | esc=powrot");
     status_bar_.render(renderer);
     footer_.render(renderer);
 }
 
 void BookFormScreen::handle_input(const InputEvent& event, ScreenManager& manager) {
-    if (event.key == Key::Up) {
+    if (event.key == Key::Up || event.key == Key::Left) {
         if (focused_field_ == 0) {
             focused_field_ = fields_.empty() ? 0 : fields_.size() - 1;
         } else {
@@ -74,7 +70,7 @@ void BookFormScreen::handle_input(const InputEvent& event, ScreenManager& manage
         return;
     }
 
-    if (event.key == Key::Down) {
+    if (event.key == Key::Down || event.key == Key::Right) {
         if (!fields_.empty()) {
             focused_field_ = (focused_field_ + 1) % fields_.size();
         }
@@ -83,27 +79,41 @@ void BookFormScreen::handle_input(const InputEvent& event, ScreenManager& manage
     }
 
     if (event.key == Key::Enter) {
+        if (!fields_.empty() && focused_field_ + 1 < fields_.size()) {
+            ++focused_field_;
+            rebuild_fields();
+        } else {
+            save(manager);
+        }
+        return;
+    }
+
+    if (event.key == Key::Submit) {
         save(manager);
         return;
     }
 
-    if (event.key == Key::Quit || event.key == Key::Back || event.key == Key::Escape) {
+    if (event.key == Key::Escape || event.key == Key::Back || event.key == Key::Quit) {
         manager.set_active("books");
         return;
     }
 
-    if (event.raw.empty()) {
+    if (event.key == Key::Backspace) {
+        if (focused_field_ < values_.size() && !values_[focused_field_].empty()) {
+            values_[focused_field_].pop_back();
+            rebuild_fields();
+            status_bar_.set("Edycja pola", components::StatusType::Info);
+        }
         return;
     }
 
-    if (is_command(event.raw, 'q')) {
-        manager.set_active("books");
+    if (event.raw.size() != 1 || std::isprint(static_cast<unsigned char>(event.raw.front())) == 0) {
         return;
     }
 
-    set_field_value(focused_field_, event.raw);
+    values_[focused_field_] += event.raw;
     rebuild_fields();
-    status_bar_.set("Zaktualizowano pole", components::StatusType::Info);
+    status_bar_.set("Edycja pola", components::StatusType::Info);
 }
 
 void BookFormScreen::load_form_state() {

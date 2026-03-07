@@ -10,6 +10,8 @@ enum class Key {
     Left,
     Right,
     Enter,
+    Backspace,
+    Submit,
     Escape,
     Back,
     Quit,
@@ -23,7 +25,7 @@ struct InputEvent {
 
 class InputHandler {
 public:
-    [[nodiscard]] InputEvent read_event() const;
+    [[nodiscard]] InputEvent read_event(bool prefer_line_input, bool prefer_text_input) const;
 };
 
 } // namespace ui
