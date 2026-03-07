@@ -24,6 +24,9 @@
 #include "ui/screens/reader_loan_history_screen.hpp"
 #include "ui/screens/reader_reputation_screen.hpp"
 #include "ui/screens/reader_unblock_dialog_screen.hpp"
+#include "ui/screens/reservation_create_screen.hpp"
+#include "ui/screens/reservation_details_screen.hpp"
+#include "ui/screens/reservation_list_screen.hpp"
 #include "ui/screen_manager.hpp"
 
 namespace ui::controllers {
@@ -35,7 +38,8 @@ ApplicationController::ApplicationController(Library& library, ScreenManager& sc
       books_controller_(library_),
       copies_controller_(library_),
       loans_controller_(library_),
-      readers_controller_(library_) {}
+      readers_controller_(library_),
+      reservations_controller_(library_) {}
 
 void ApplicationController::bootstrap() {
     screen_manager_.register_screen(std::make_unique<screens::DashboardScreen>(dashboard_controller_));
@@ -59,7 +63,9 @@ void ApplicationController::bootstrap() {
     screen_manager_.register_screen(std::make_unique<screens::LoanCreateScreen>(loans_controller_));
     screen_manager_.register_screen(std::make_unique<screens::LoanReturnDialogScreen>(loans_controller_));
     screen_manager_.register_screen(std::make_unique<screens::LoanExtendDialogScreen>(loans_controller_));
-    screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("reservations", "Rezerwacje"));
+    screen_manager_.register_screen(std::make_unique<screens::ReservationListScreen>(reservations_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::ReservationDetailsScreen>(reservations_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::ReservationCreateScreen>(reservations_controller_));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("locations", "Lokalizacje"));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("inventory", "Inwentaryzacja"));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("reports", "Raporty"));

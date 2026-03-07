@@ -5,6 +5,7 @@
 #include "ui/controllers/dashboard_controller.hpp"
 #include "ui/controllers/loans_controller.hpp"
 #include "ui/controllers/readers_controller.hpp"
+#include "ui/controllers/reservations_controller.hpp"
 
 class Library;
 
@@ -28,6 +29,7 @@ private:
     CopiesController copies_controller_;
     LoansController loans_controller_;
     ReadersController readers_controller_;
+    ReservationsController reservations_controller_;
 };
 
 } // namespace controllers

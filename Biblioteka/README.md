@@ -121,6 +121,7 @@ Szkielet TUI jest podzielony na:
 - `ui/controllers/BooksController`: adapter przypadków użycia modułu książek,
 - `ui/controllers/CopiesController`: adapter przypadków użycia modułu egzemplarzy.
 - `ui/controllers/LoansController`: adapter przypadków użycia modułu wypożyczeń (na bazie `reservations`).
+- `ui/controllers/ReservationsController`: adapter przypadków użycia modułu rezerwacji.
 
 Wspólne komponenty TUI (`ui/components`) gotowe do użycia przez moduły książek, czytelników i wypożyczeń:
 - `Header`
@@ -246,6 +247,22 @@ Workflow:
    - `inv:<fraza>`,
    - lub ogólną frazę (łączoną z modułami readers/copies).
 4. Błędy biznesowe (np. `ReaderBlockedError`, `CopyUnavailableError`) są mapowane przez `errors::to_user_message(...)` i pokazywane w pasku statusu.
+
+## Ekran TUI: Rezerwacje
+Moduł ekranów rezerwacji:
+- `ReservationListScreen`: listowanie, filtrowanie po statusie, anulowanie,
+- `ReservationDetailsScreen`: szczegóły pojedynczej rezerwacji,
+- `ReservationCreateScreen`: tworzenie nowej rezerwacji (na egzemplarz lub książkę).
+
+Workflow:
+1. Z `Dashboard` wybierz `Rezerwacje`.
+2. W `ReservationListScreen`:
+   - `a` dodaje rezerwację,
+   - `c` anuluje zaznaczoną rezerwację,
+   - `f` przełącza filtr statusu (`ALL/ACTIVE/CANCELLED/EXPIRED/FULFILLED`),
+   - `Enter` otwiera szczegóły,
+   - `q` wraca do dashboardu.
+3. Widok listy i szczegółów pokazuje status rezerwacji oraz datę wygaśnięcia.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:

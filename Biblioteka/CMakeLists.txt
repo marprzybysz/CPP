@@ -71,6 +71,7 @@ add_executable(cpp_biblioteka
     src/ui/controllers/dashboard_controller.cpp
     src/ui/controllers/loans_controller.cpp
     src/ui/controllers/readers_controller.cpp
+    src/ui/controllers/reservations_controller.cpp
     src/ui/screens/book_details_screen.cpp
     src/ui/screens/book_form_screen.cpp
     src/ui/screens/book_list_screen.cpp
@@ -93,6 +94,9 @@ add_executable(cpp_biblioteka
     src/ui/screens/reader_loan_history_screen.cpp
     src/ui/screens/reader_reputation_screen.cpp
     src/ui/screens/reader_unblock_dialog_screen.cpp
+    src/ui/screens/reservation_create_screen.cpp
+    src/ui/screens/reservation_details_screen.cpp
+    src/ui/screens/reservation_list_screen.cpp
 )
 
 target_include_directories(cpp_biblioteka PRIVATE include)
