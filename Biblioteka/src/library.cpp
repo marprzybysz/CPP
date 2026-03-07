@@ -44,6 +44,8 @@ Library::Library(Db& db)
       reservation_service_(reservation_repository_, id_generator_),
       report_repository_(db_),
       report_service_(report_repository_, id_generator_),
+      search_repository_(db_),
+      search_service_(search_repository_),
       export_repository_(db_),
       export_service_(export_repository_),
       import_repository_(db_),
@@ -326,6 +328,10 @@ reports::CopiesInRepairReport Library::generate_copies_in_repair_report(const re
         log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "copies in repair report generated");
     }
     return report;
+}
+
+search::GlobalSearchResult Library::global_search(const search::SearchQuery& query) const {
+    return search_service_.search(query);
 }
 
 exports::CopyWithdrawal Library::withdraw_copy(const exports::WithdrawCopyInput& input) {

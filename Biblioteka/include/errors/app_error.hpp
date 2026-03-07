@@ -89,4 +89,10 @@ public:
         : AppError(ErrorCode::Import, std::move(message)) {}
 };
 
+class SearchError : public AppError {
+public:
+    explicit SearchError(std::string message)
+        : AppError(ErrorCode::Search, std::move(message)) {}
+};
+
 } // namespace errors

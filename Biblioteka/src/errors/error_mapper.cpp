@@ -29,6 +29,8 @@ std::string to_user_message(const std::exception& ex) {
                 return "Export/withdrawal operation failed.";
             case ErrorCode::Import:
                 return "Import operation failed.";
+            case ErrorCode::Search:
+                return "Search operation failed.";
             default:
                 return "Unexpected application error.";
         }

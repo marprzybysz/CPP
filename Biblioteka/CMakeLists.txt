@@ -42,6 +42,8 @@ add_executable(cpp_biblioteka
     src/reports/report.cpp
     src/reports/report_service.cpp
     src/reports/sqlite_report_repository.cpp
+    src/search/search_service.cpp
+    src/search/sqlite_search_repository.cpp
     src/reservations/reservation.cpp
     src/reservations/reservation_service.cpp
     src/reservations/sqlite_reservation_repository.cpp

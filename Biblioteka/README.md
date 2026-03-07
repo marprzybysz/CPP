@@ -1,7 +1,7 @@
 # Biblioteka
 
 Projekt `Biblioteka` to backend/logika systemu zarządzania biblioteką napisany w C++20.
-Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, wycofywania, lokalizacji, inwentaryzacji, raportów, audytu, importu i błędów.
+Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, wycofywania, lokalizacji, inwentaryzacji, raportów, wyszukiwania, audytu, importu i błędów.
 
 ## Cel projektu
 
@@ -83,6 +83,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `report_repository.hpp`
 - `sqlite_report_repository.hpp`
 - `report_service.hpp`
+- `search/`
+- `search.hpp`
+- `search_repository.hpp`
+- `sqlite_search_repository.hpp`
+- `search_service.hpp`
 - `audit/`
 - `audit_event.hpp`
 - `audit_repository.hpp`
@@ -142,6 +147,9 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `report.cpp`
 - `report_service.cpp`
 - `sqlite_report_repository.cpp`
+- `search/`
+- `search_service.cpp`
+- `sqlite_search_repository.cpp`
 - `audit/`
 - `audit_event.cpp`
 - `audit_service.cpp`
@@ -189,6 +197,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `exports::ExportService`: logika biznesowa wycofania egzemplarza i listowania wycofanych pozycji
 - `imports::SqliteImportRepository`: warstwa danych przebiegów importu i błędów rekordów
 - `imports::ImportService`: logika importu danych i raportowania podsumowania importu
+- `search::SqliteSearchRepository`: warstwa danych globalnej wyszukiwarki
+- `search::SearchService`: logika wyszukiwania przekrojowego po książkach, egzemplarzach i czytelnikach
 - `notes::SqliteNoteRepository`: warstwa danych notatek generycznych
 - `notes::NoteService`: logika tworzenia/odczytu/archiwizacji notatek
 - `reservations::SqliteReservationRepository`: warstwa danych rezerwacji
@@ -367,6 +377,32 @@ Integracja:
 Baza pod przyszły eksport CSV:
 - `report_snapshots`: przechowuje metadane i payload raportu
 - `report_exports`: kolejka/stan eksportów (`CSV`, `PENDING/DONE/FAILED`)
+
+## Moduł globalnej wyszukiwarki
+
+Wyszukiwarka wspiera zapytania po:
+- książce (`title`)
+- autorze (`author`)
+- ISBN
+- egzemplarzu (`copy public_id`)
+- numerze inwentarzowym
+- czytelniku (imię, nazwisko, e-mail, `public_id`)
+- numerze karty
+
+Model wyników:
+- `books`: lista książek (`BookSearchHit`)
+- `copies`: lista egzemplarzy (`CopySearchHit`) z:
+  - statusem egzemplarza
+  - lokalizacją bieżącą i docelową
+  - informacją o potencjalnym posiadaczu (aktywna rezerwacja dla egzemplarza)
+- `readers`: lista czytelników (`ReaderSearchHit`)
+
+Integracja:
+- `books`
+- `copies`
+- `readers`
+- `reservations` (warstwa loans)
+- `locations`
 
 ## Moduł audytu i logów zdarzeń
 

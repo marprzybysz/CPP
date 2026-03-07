@@ -35,6 +35,9 @@
 #include "reports/report.hpp"
 #include "reports/report_service.hpp"
 #include "reports/sqlite_report_repository.hpp"
+#include "search/search.hpp"
+#include "search/search_service.hpp"
+#include "search/sqlite_search_repository.hpp"
 #include "reservations/reservation.hpp"
 #include "reservations/reservation_service.hpp"
 #include "reservations/sqlite_reservation_repository.hpp"
@@ -112,6 +115,7 @@ public:
     reports::InventoryStateReport generate_inventory_state_report(const reports::ReportQueryOptions& options);
     reports::ArchivedBooksReport generate_archived_books_report(const reports::ReportQueryOptions& options);
     reports::CopiesInRepairReport generate_copies_in_repair_report(const reports::ReportQueryOptions& options);
+    search::GlobalSearchResult global_search(const search::SearchQuery& query) const;
 
     exports::CopyWithdrawal withdraw_copy(const exports::WithdrawCopyInput& input);
     std::vector<exports::WithdrawnCopyView> list_withdrawn_copies(int limit = 100, int offset = 0) const;
@@ -157,6 +161,8 @@ private:
     reservations::ReservationService reservation_service_;
     reports::SqliteReportRepository report_repository_;
     reports::ReportService report_service_;
+    search::SqliteSearchRepository search_repository_;
+    search::SearchService search_service_;
     exports::SqliteExportRepository export_repository_;
     exports::ExportService export_service_;
     imports::SqliteImportRepository import_repository_;

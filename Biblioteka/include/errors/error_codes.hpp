@@ -14,6 +14,7 @@ enum class ErrorCode {
     Audit,
     Export,
     Import,
+    Search,
 };
 
 } // namespace errors
