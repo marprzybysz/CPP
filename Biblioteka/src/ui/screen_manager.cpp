@@ -4,6 +4,8 @@
 
 namespace ui {
 
+ScreenManager::~ScreenManager() = default;
+
 void ScreenManager::register_screen(std::unique_ptr<Screen> screen) {
     if (!screen) {
         return;

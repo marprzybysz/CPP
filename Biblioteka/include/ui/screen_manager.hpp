@@ -10,6 +10,8 @@ class Screen;
 
 class ScreenManager {
 public:
+    ~ScreenManager();
+
     void register_screen(std::unique_ptr<Screen> screen);
     bool set_active(const std::string& id);
     void clear_active();
