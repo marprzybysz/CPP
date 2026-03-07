@@ -18,6 +18,9 @@ ui::Key map_input_to_key(const std::string& raw) {
     if (raw == "\x1b[C") {
         return ui::Key::Right;
     }
+    if (raw == "\x1b") {
+        return ui::Key::Escape;
+    }
 
     if (raw.empty()) {
         return ui::Key::Enter;
@@ -33,8 +36,6 @@ ui::Key map_input_to_key(const std::string& raw) {
         return ui::Key::Back;
     case 'q':
         return ui::Key::Quit;
-    case 'e':
-        return ui::Key::Enter;
     default:
         return ui::Key::Unknown;
     }
@@ -45,7 +46,7 @@ ui::Key map_input_to_key(const std::string& raw) {
 namespace ui {
 
 InputEvent InputHandler::read_event() const {
-    std::cout << "[strzalki/w/s=move, Enter/e=open, b=back, q=quit] > ";
+    std::cout << "[strzalki/w/s=move, enter=wybierz, / szukaj, a dodaj, e edytuj, q wyjdz] > ";
 
     std::string raw;
     if (!std::getline(std::cin, raw)) {

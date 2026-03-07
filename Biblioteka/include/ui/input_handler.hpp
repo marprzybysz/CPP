@@ -10,6 +10,7 @@ enum class Key {
     Left,
     Right,
     Enter,
+    Escape,
     Back,
     Quit,
     Unknown,

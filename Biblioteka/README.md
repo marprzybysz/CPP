@@ -148,9 +148,27 @@ Dashboard pokazuje:
 
 Nawigacja:
 - `w/s` lub strzałki góra/dół do zmiany aktywnej pozycji,
-- `Enter` (lub `e`) do wejścia w ekran,
+- `Enter` do wejścia w ekran,
 - `b` powrót do dashboardu,
 - `q` wyjście.
+
+## Ekran TUI: Książki
+Moduł ekranów książek:
+- `BookListScreen`: listowanie, wyszukiwanie, filtrowanie, akcje,
+- `BookDetailsScreen`: szczegóły wybranej książki,
+- `BookFormScreen`: dodawanie i edycja książki.
+
+Workflow:
+1. Z `Dashboard` wybierz `Książki`.
+2. W `BookListScreen` przeglądaj listę (`góra/dół`) i otwieraj szczegóły (`Enter`).
+3. Dodaj nową książkę (`a`) lub edytuj zaznaczoną (`e`).
+4. Wyszukiwanie aktywuj przez `/`, następnie wpisz:
+   - `t:<fraza>` dla tytułu,
+   - `a:<fraza>` dla autora,
+   - `i:<fraza>` dla ISBN,
+   - `clear` aby wyczyścić kryteria.
+5. Filtrowanie (`f`) przełącza `include_archived`.
+6. `q` lub `esc` wraca do poprzedniego ekranu.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:
