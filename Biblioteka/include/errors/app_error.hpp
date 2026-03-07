@@ -77,4 +77,10 @@ public:
         : AppError(ErrorCode::Audit, std::move(message)) {}
 };
 
+class ExportError : public AppError {
+public:
+    explicit ExportError(std::string message)
+        : AppError(ErrorCode::Export, std::move(message)) {}
+};
+
 } // namespace errors

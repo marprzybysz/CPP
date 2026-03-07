@@ -2,6 +2,25 @@
 
 #include <iostream>
 
+namespace {
+
+copies::CopyStatus withdrawal_status_for_reason(exports::WithdrawalReason reason) {
+    if (reason == exports::WithdrawalReason::Lost) {
+        return copies::CopyStatus::Lost;
+    }
+    return copies::CopyStatus::Archived;
+}
+
+std::string withdrawal_details(exports::WithdrawalReason reason, const std::string& note) {
+    std::string details = "reason=" + exports::to_string(reason);
+    if (!note.empty()) {
+        details += "; note=" + note;
+    }
+    return details;
+}
+
+} // namespace
+
 Library::Library(Db& db)
     : db_(db),
       id_generator_(),
@@ -24,7 +43,9 @@ Library::Library(Db& db)
       reservation_repository_(db_),
       reservation_service_(reservation_repository_, id_generator_),
       report_repository_(db_),
-      report_service_(report_repository_, id_generator_) {}
+      report_service_(report_repository_, id_generator_),
+      export_repository_(db_),
+      export_service_(export_repository_) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
     books::Book created = book_service_.add_book(input);
@@ -297,6 +318,31 @@ reports::CopiesInRepairReport Library::generate_copies_in_repair_report(const re
         log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "copies in repair report generated");
     }
     return report;
+}
+
+exports::CopyWithdrawal Library::withdraw_copy(const exports::WithdrawCopyInput& input) {
+    const copies::CopyStatus resulting_status = withdrawal_status_for_reason(input.reason);
+
+    std::optional<std::string> archival_reason = std::nullopt;
+    if (resulting_status == copies::CopyStatus::Archived) {
+        archival_reason = withdrawal_details(input.reason, input.note);
+    }
+
+    const copies::BookCopy updated_copy =
+        copy_service_.change_status(input.copy_public_id, resulting_status, "withdrawn from circulation", archival_reason);
+    const exports::CopyWithdrawal withdrawal = export_service_.withdraw_copy(input, updated_copy.status);
+
+    log_system_audit(audit::AuditModule::Export,
+                     "COPY",
+                     withdrawal.copy_public_id,
+                     "WITHDRAW",
+                     withdrawal_details(withdrawal.reason, withdrawal.note));
+
+    return withdrawal;
+}
+
+std::vector<exports::WithdrawnCopyView> Library::list_withdrawn_copies(int limit, int offset) const {
+    return export_service_.list_withdrawn_copies(limit, offset);
 }
 
 audit::AuditEvent Library::log_audit_event(const audit::AuditLogInput& input) {

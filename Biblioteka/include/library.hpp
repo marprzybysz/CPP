@@ -10,6 +10,9 @@
 #include "copies/copy_service.hpp"
 #include "copies/sqlite_copy_repository.hpp"
 #include "db.hpp"
+#include "exports/export.hpp"
+#include "exports/export_service.hpp"
+#include "exports/sqlite_export_repository.hpp"
 #include "locations/location.hpp"
 #include "locations/location_service.hpp"
 #include "locations/sqlite_location_repository.hpp"
@@ -106,6 +109,9 @@ public:
     reports::ArchivedBooksReport generate_archived_books_report(const reports::ReportQueryOptions& options);
     reports::CopiesInRepairReport generate_copies_in_repair_report(const reports::ReportQueryOptions& options);
 
+    exports::CopyWithdrawal withdraw_copy(const exports::WithdrawCopyInput& input);
+    std::vector<exports::WithdrawnCopyView> list_withdrawn_copies(int limit = 100, int offset = 0) const;
+
     audit::AuditEvent log_audit_event(const audit::AuditLogInput& input);
     std::vector<audit::AuditEvent> get_recent_audit_events(int limit = 100) const;
     std::vector<audit::AuditEvent> get_audit_events_for_object(const std::string& object_type,
@@ -145,4 +151,6 @@ private:
     reservations::ReservationService reservation_service_;
     reports::SqliteReportRepository report_repository_;
     reports::ReportService report_service_;
+    exports::SqliteExportRepository export_repository_;
+    exports::ExportService export_service_;
 };

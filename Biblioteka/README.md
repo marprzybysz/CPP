@@ -1,7 +1,7 @@
 # Biblioteka
 
 Projekt `Biblioteka` to backend/logika systemu zarządzania biblioteką napisany w C++20.
-Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, lokalizacji, inwentaryzacji, raportów, audytu i błędów.
+Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, wycofywania, lokalizacji, inwentaryzacji, raportów, audytu i błędów.
 
 ## Cel projektu
 
@@ -46,6 +46,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `inventory_repository.hpp`
 - `sqlite_inventory_repository.hpp`
 - `inventory_service.hpp`
+- `exports/`
+- `export.hpp`
+- `export_repository.hpp`
+- `sqlite_export_repository.hpp`
+- `export_service.hpp`
 - `notes/`
 - `note.hpp`
 - `note_repository.hpp`
@@ -102,6 +107,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `inventory.cpp`
 - `inventory_service.cpp`
 - `sqlite_inventory_repository.cpp`
+- `exports/`
+- `export.cpp`
+- `export_service.cpp`
+- `sqlite_export_repository.cpp`
 - `notes/`
 - `note.cpp`
 - `note_service.cpp`
@@ -164,6 +173,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `locations::LocationService`: logika hierarchii lokalizacji i operacji drzewiastych
 - `inventory::SqliteInventoryRepository`: warstwa danych sesji inwentaryzacji, skanów i pozycji wynikowych
 - `inventory::InventoryService`: logika biznesowa spisu z natury dla `ROOM`/`RACK`/`SHELF`
+- `exports::SqliteExportRepository`: warstwa danych wycofań egzemplarzy z obiegu
+- `exports::ExportService`: logika biznesowa wycofania egzemplarza i listowania wycofanych pozycji
 - `notes::SqliteNoteRepository`: warstwa danych notatek generycznych
 - `notes::NoteService`: logika tworzenia/odczytu/archiwizacji notatek
 - `reservations::SqliteReservationRepository`: warstwa danych rezerwacji
@@ -366,6 +377,33 @@ Integracja w systemie:
 
 Składowanie:
 - tabela `audit_events` z indeksami po module, obiekcie i czasie
+
+## Moduł export / wycofania z obiegu
+
+System wspiera wycofanie egzemplarza z powodów:
+- `DAMAGE` (uszkodzenie)
+- `NO_BORROWINGS` (brak wypożyczeń)
+- `DUPLICATES` (duplikaty)
+- `OUTDATED_CONTENT` (nieaktualne treści)
+- `LOST` (zagubienie)
+
+Model wycofania (`exports::CopyWithdrawal`) zapisuje:
+- `copy_public_id`
+- `reason`
+- `withdrawal_date`
+- `operator_name`
+- `note`
+- `resulting_status`
+
+Logika archiwizacji:
+- dla powodów innych niż `LOST` egzemplarz przechodzi do statusu `ARCHIVED`
+- dla powodu `LOST` egzemplarz przechodzi do statusu `LOST`
+- zmiana statusu odbywa się przez `copies::CopyService::change_status(...)`, więc pozostaje spójna z modułem egzemplarzy
+- po skutecznej zmianie statusu tworzony jest rekord w `copy_withdrawals`
+
+Dostępne operacje:
+- `withdraw_copy(...)`
+- `list_withdrawn_copies(...)`
 
 ## Moduł czytelników
 

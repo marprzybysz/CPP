@@ -434,4 +434,23 @@ void Db::init_schema() {
                   "failed to create idx_audit_events_object");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_audit_events_occurred_at ON audit_events(occurred_at);",
                   "failed to create idx_audit_events_occurred_at");
+
+    const char* create_copy_withdrawals_sql =
+        "CREATE TABLE IF NOT EXISTS copy_withdrawals ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "copy_public_id TEXT NOT NULL UNIQUE,"
+        "reason TEXT NOT NULL CHECK(reason IN ('DAMAGE','NO_BORROWINGS','DUPLICATES','OUTDATED_CONTENT','LOST')),"
+        "withdrawal_date TEXT NOT NULL,"
+        "operator_name TEXT NOT NULL,"
+        "note TEXT NOT NULL DEFAULT '',"
+        "resulting_status TEXT NOT NULL CHECK(resulting_status IN ('ARCHIVED','LOST')),"
+        "created_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "FOREIGN KEY(copy_public_id) REFERENCES book_copies(public_id)"
+        ");";
+
+    exec_or_throw(db_, create_copy_withdrawals_sql, "failed to create copy_withdrawals table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_copy_withdrawals_reason ON copy_withdrawals(reason);",
+                  "failed to create idx_copy_withdrawals_reason");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_copy_withdrawals_date ON copy_withdrawals(withdrawal_date);",
+                  "failed to create idx_copy_withdrawals_date");
 }

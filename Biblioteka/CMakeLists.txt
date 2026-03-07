@@ -24,6 +24,9 @@ add_executable(cpp_biblioteka
     src/inventory/inventory.cpp
     src/inventory/inventory_service.cpp
     src/inventory/sqlite_inventory_repository.cpp
+    src/exports/export.cpp
+    src/exports/export_service.cpp
+    src/exports/sqlite_export_repository.cpp
     src/notes/note.cpp
     src/notes/note_service.cpp
     src/notes/sqlite_note_repository.cpp
