@@ -20,7 +20,7 @@ Główne zasady architektury:
 - Każdy moduł ma własne modele domenowe (`include/<module>`), serwis (`*Service`) i repozytorium (`*Repository`).
 - Implementacje SQLite są oddzielone od logiki biznesowej (`Sqlite*Repository`).
 - Logika biznesowa i walidacje są w serwisach, a mapowanie SQL w repozytoriach.
-- Warstwa `tui` jest adapterem UI nad fasadą `Library` i nie zawiera logiki domenowej.
+- Warstwa `ui` jest adapterem TUI nad fasadą `Library` i nie zawiera logiki domenowej.
 - Identyfikatory systemowe są generowane centralnie przez `common::SystemIdGenerator`.
 - Błędy domenowe i komunikaty użytkownika są obsługiwane przez moduł `errors`.
 
@@ -47,7 +47,7 @@ Biblioteka/
 │   ├── imports/
 │   ├── notes/
 │   ├── reputation/
-│   └── tui/
+│   └── ui/
 └── src/
     ├── main.cpp
     ├── db.cpp
@@ -67,7 +67,7 @@ Biblioteka/
     ├── imports/
     ├── notes/
     ├── reputation/
-    └── tui/
+    └── ui/
 ```
 
 ## Opis wszystkich modułów
@@ -105,18 +105,19 @@ cmake --build build
 ./build/cpp_biblioteka
 ```
 
-Aplikacja tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat i uruchamia menu TUI.
+Aplikacja tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat i uruchamia pętlę TUI.
 
 ## Warstwa TUI
-TUI jest podzielone na:
-- `tui/controllers`: przypadki użycia UI, które wywołują `Library`,
-- `tui/screens`: widoki terminalowe i obsługa wejścia użytkownika,
-- `tui/TuiApplication`: routing i główna pętla menu.
+Szkielet TUI jest podzielony na:
+- `ui/Application`: uruchamia główną pętlę terminalową,
+- `ui/screens/Screen`: bazowy interfejs ekranów,
+- `ui/ScreenManager`: rejestracja ekranów i przełączanie widoków,
+- `ui/Renderer`: rysowanie terminala,
+- `ui/InputHandler`: mapowanie wejścia użytkownika na zdarzenia nawigacji,
+- `ui/components/Menu`: współdzielony komponent menu,
+- `ui/controllers/ApplicationController`: bootstrap ekranów.
 
-Aktualnie dostępne:
-- `Dashboard`
-- `Książki` (lista, wyszukiwanie po autorze, dodawanie)
-- placeholdery pod kolejne moduły: egzemplarze, czytelnicy, wypożyczenia, rezerwacje, lokalizacje, inwentaryzacja, raporty, notatki, logi zdarzeń.
+Aktualnie dostępny jest ekran `Dashboard` jako punkt startowy pod rozbudowę kolejnych modułów.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:
