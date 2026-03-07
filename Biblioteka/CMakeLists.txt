@@ -98,7 +98,6 @@ add_executable(cpp_biblioteka
     src/ui/screens/location_details_screen.cpp
     src/ui/screens/location_tree_screen.cpp
     src/ui/screens/notes_screen.cpp
-    src/ui/screens/placeholder_screen.cpp
     src/ui/screens/reader_block_dialog_screen.cpp
     src/ui/screens/reader_details_screen.cpp
     src/ui/screens/reader_form_screen.cpp

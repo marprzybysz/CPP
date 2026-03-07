@@ -195,13 +195,6 @@ void InventorySessionScreen::load_session() {
     }
 }
 
-void InventorySessionScreen::sync_selected_location() {
-    const auto idx = selected_location_index();
-    if (!idx.has_value()) {
-        return;
-    }
-}
-
 std::optional<std::size_t> InventorySessionScreen::selected_location_index() const {
     if (locations_.empty()) {
         return std::nullopt;

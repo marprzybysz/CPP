@@ -107,6 +107,11 @@ cmake --build build
 
 Aplikacja tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat i uruchamia pętlę TUI.
 
+## Uruchomienie TUI
+- wejście do TUI odbywa się przez `main.cpp` (`ui::Application app(library); return app.run();`),
+- po starcie aktywny jest ekran `Dashboard`,
+- nawigacja po modułach odbywa się przez `ScreenManager` i identyfikatory ekranów.
+
 ## Warstwa TUI
 Szkielet TUI jest podzielony na:
 - `ui/Application`: uruchamia główną pętlę terminalową,
@@ -160,6 +165,27 @@ Nawigacja:
 - `Enter` do wejścia w ekran,
 - `b` powrót do dashboardu,
 - `q` wyjście.
+
+## Struktura ekranów TUI
+- `dashboard`: ekran główny i routing do modułów,
+- `books`: lista/szczegóły/formularz książek,
+- `copies`: lista/szczegóły/formularz/status/lokalizacja egzemplarzy,
+- `readers`: lista/szczegóły/formularz/blokada/reputacja/historia,
+- `loans`: lista/szczegóły/tworzenie/zwrot/przedłużenie,
+- `reservations`: lista/szczegóły/tworzenie/anulowanie,
+- `locations`: drzewo lokalizacji + szczegóły i egzemplarze,
+- `inventory`: lista sesji + sesja + wynik,
+- `reports`: menu raportów + wynik,
+- `notes`: lista/filtrowanie/dodawanie notatek,
+- `logs`: lista/filtrowanie/szczegóły wpisów audytowych.
+
+## Sterowanie klawiszami
+- `góra/dół` lub `w/s`: nawigacja po listach/menu,
+- `enter`: wejście/szczegóły/akceptacja operacji,
+- `a`: akcja tworzenia (np. nowa pozycja/notatka/sesja),
+- `/`: tryb filtrowania/wyszukiwania,
+- `q`/`esc`: powrót lub wyjście z bieżącego ekranu,
+- ekrany modułowe dodają skróty kontekstowe (`c`, `r`, `p`, `f`, `s`).
 
 ## Ekran TUI: Książki
 Moduł ekranów książek:

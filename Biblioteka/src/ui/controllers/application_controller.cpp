@@ -22,7 +22,6 @@
 #include "ui/screens/loan_extend_dialog_screen.hpp"
 #include "ui/screens/loan_list_screen.hpp"
 #include "ui/screens/loan_return_dialog_screen.hpp"
-#include "ui/screens/placeholder_screen.hpp"
 #include "ui/screens/reader_block_dialog_screen.hpp"
 #include "ui/screens/reader_details_screen.hpp"
 #include "ui/screens/reader_form_screen.hpp"

@@ -27,7 +27,6 @@ public:
 private:
     void load_locations();
     void load_session();
-    void sync_selected_location();
     [[nodiscard]] std::optional<std::size_t> selected_location_index() const;
 
     controllers::InventoryController& controller_;

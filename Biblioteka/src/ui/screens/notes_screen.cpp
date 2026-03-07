@@ -105,15 +105,15 @@ void NotesScreen::handle_input(const InputEvent& event, ScreenManager& manager) 
         return;
     }
 
-    if (!event.raw.empty() && (event.raw[0] == 'a' || event.raw[0] == 'A')) {
-        status_bar_.set("Dodaj: a target:<reader|book|copy|loan>:ID author:NAME text:TRESC", components::StatusType::Info);
-        return;
-    }
-
     if (event.raw.rfind("a ", 0) == 0) {
         if (add_note(event.raw.substr(2))) {
             reload_notes();
         }
+        return;
+    }
+
+    if (!event.raw.empty() && (event.raw[0] == 'a' || event.raw[0] == 'A')) {
+        status_bar_.set("Dodaj: a target:<reader|book|copy|loan>:ID author:NAME text:TRESC", components::StatusType::Info);
         return;
     }
 
