@@ -17,6 +17,7 @@ ui::components::Menu build_dashboard_menu() {
                                  {"inventory", "Inwentaryzacja"},
                                  {"reports", "Raporty"},
                                  {"notes", "Notatki"},
+                                 {"logs", "Logi zdarzen"},
                                  {"exit", "Wyjscie"}});
 }
 

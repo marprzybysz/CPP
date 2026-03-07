@@ -66,14 +66,18 @@ add_executable(cpp_biblioteka
     src/ui/components/status_bar.cpp
     src/ui/components/table_view.cpp
     src/ui/controllers/application_controller.cpp
+    src/ui/controllers/audit_controller.cpp
     src/ui/controllers/books_controller.cpp
     src/ui/controllers/copies_controller.cpp
     src/ui/controllers/dashboard_controller.cpp
     src/ui/controllers/inventory_controller.cpp
     src/ui/controllers/locations_controller.cpp
     src/ui/controllers/loans_controller.cpp
+    src/ui/controllers/notes_controller.cpp
     src/ui/controllers/readers_controller.cpp
+    src/ui/controllers/reports_controller.cpp
     src/ui/controllers/reservations_controller.cpp
+    src/ui/screens/audit_log_screen.cpp
     src/ui/screens/book_details_screen.cpp
     src/ui/screens/book_form_screen.cpp
     src/ui/screens/book_list_screen.cpp
@@ -93,6 +97,7 @@ add_executable(cpp_biblioteka
     src/ui/screens/loan_return_dialog_screen.cpp
     src/ui/screens/location_details_screen.cpp
     src/ui/screens/location_tree_screen.cpp
+    src/ui/screens/notes_screen.cpp
     src/ui/screens/placeholder_screen.cpp
     src/ui/screens/reader_block_dialog_screen.cpp
     src/ui/screens/reader_details_screen.cpp
@@ -101,6 +106,8 @@ add_executable(cpp_biblioteka
     src/ui/screens/reader_loan_history_screen.cpp
     src/ui/screens/reader_reputation_screen.cpp
     src/ui/screens/reader_unblock_dialog_screen.cpp
+    src/ui/screens/report_menu_screen.cpp
+    src/ui/screens/report_result_screen.cpp
     src/ui/screens/reservation_create_screen.cpp
     src/ui/screens/reservation_details_screen.cpp
     src/ui/screens/reservation_list_screen.cpp

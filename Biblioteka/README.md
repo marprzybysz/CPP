@@ -124,6 +124,9 @@ Szkielet TUI jest podzielony na:
 - `ui/controllers/ReservationsController`: adapter przypadków użycia modułu rezerwacji.
 - `ui/controllers/LocationsController`: adapter przypadków użycia modułu lokalizacji.
 - `ui/controllers/InventoryController`: adapter przypadków użycia modułu inwentaryzacji.
+- `ui/controllers/ReportsController`: adapter przypadków użycia modułu raportów.
+- `ui/controllers/NotesController`: adapter przypadków użycia modułu notatek.
+- `ui/controllers/AuditController`: adapter przypadków użycia modułu logów zdarzeń.
 
 Wspólne komponenty TUI (`ui/components`) gotowe do użycia przez moduły książek, czytelników i wypożyczeń:
 - `Header`
@@ -150,7 +153,7 @@ Dashboard pokazuje:
 - liczbę czytelników (z `Library::search_readers`),
 - liczbę przetrzymanych książek (z `Library::generate_overdue_books_report`),
 - placeholdery dla liczby egzemplarzy i aktywnych wypożyczeń (do czasu wystawienia liczników przez fasadę `Library`),
-- główne menu: Dashboard, Książki, Egzemplarze, Czytelnicy, Wypożyczenia, Rezerwacje, Lokalizacje, Inwentaryzacja, Raporty, Notatki, Wyjście.
+- główne menu: Dashboard, Książki, Egzemplarze, Czytelnicy, Wypożyczenia, Rezerwacje, Lokalizacje, Inwentaryzacja, Raporty, Notatki, Logi zdarzeń, Wyjście.
 
 Nawigacja:
 - `w/s` lub strzałki góra/dół do zmiany aktywnej pozycji,
@@ -289,6 +292,38 @@ Workflow:
    - `s:<kod>` dodaje zeskanowany/wpisany egzemplarz,
    - `f` kończy inwentaryzację.
 4. Po zakończeniu otwiera się `InventoryResultScreen` z podsumowaniem i brakami.
+
+## Ekran TUI: Raporty
+Moduł ekranów raportów:
+- `ReportMenuScreen`: wybór typu raportu i filtr dat,
+- `ReportResultScreen`: podgląd wyniku wygenerowanego raportu.
+
+Workflow:
+1. Z `Dashboard` wybierz `Raporty`.
+2. W `ReportMenuScreen` wybierz typ raportu i użyj `/` do ustawienia filtra dat (`from:YYYY-MM-DD to:YYYY-MM-DD`).
+3. `Enter` generuje raport i otwiera `ReportResultScreen`.
+4. `q` wraca do menu raportów lub dashboardu.
+
+## Ekran TUI: Notatki
+Moduł ekranów notatek:
+- `NotesScreen`: listowanie notatek, filtrowanie po typie celu i dodawanie notatek.
+
+Workflow:
+1. Z `Dashboard` wybierz `Notatki`.
+2. `/` ustawia filtr celu (`reader:ID`, `book:ID`, `copy:ID`, `loan:ID`).
+3. `a` dodaje notatkę komendą:
+   - `a target:<reader|book|copy|loan>:<ID> author:<AUTOR> text:<TRESC>`.
+4. `Enter` pokazuje szczegóły zaznaczonej notatki w panelu.
+
+## Ekran TUI: Logi zdarzeń
+Moduł ekranów logów:
+- `AuditLogScreen`: listowanie wpisów audytowych, filtrowanie i podgląd szczegółów.
+
+Workflow:
+1. Z `Dashboard` wybierz `Logi zdarzeń`.
+2. `/` ustawia filtr (`op:<typ> date:YYYY-MM-DD module:<nazwa>`).
+3. Lista pokazuje najnowsze zdarzenia, `Enter` pokazuje szczegóły zaznaczonego wpisu.
+4. `q` wraca do dashboardu.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:
