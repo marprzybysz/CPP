@@ -367,6 +367,35 @@ std::optional<InventorySession> SqliteInventoryRepository::get_active_session_fo
     return std::nullopt;
 }
 
+std::vector<InventorySession> SqliteInventoryRepository::list_sessions(int limit, int offset) const {
+    const std::string sql =
+        std::string(kSelectSessionColumns) + " ORDER BY started_at DESC, id DESC LIMIT ? OFFSET ?;";
+
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(db_.handle(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        throw_sqlite(db_.handle(), "prepare list sessions failed");
+    }
+
+    sqlite3_bind_int(stmt, 1, limit);
+    sqlite3_bind_int(stmt, 2, offset);
+
+    std::vector<InventorySession> out;
+    while (true) {
+        const int rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW) {
+            out.push_back(map_session(stmt));
+        } else if (rc == SQLITE_DONE) {
+            break;
+        } else {
+            sqlite3_finalize(stmt);
+            throw_sqlite(db_.handle(), "list sessions failed");
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    return out;
+}
+
 InventoryScannedCopy SqliteInventoryRepository::create_scan(const InventoryScannedCopy& scan) {
     const char* sql =
         "INSERT INTO inventory_scans (session_public_id, scan_code, copy_public_id, scanned_at, note) "

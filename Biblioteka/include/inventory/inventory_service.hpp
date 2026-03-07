@@ -20,6 +20,7 @@ public:
     InventoryScannedCopy register_scanned_copy(const std::string& session_public_id, const RegisterScannedCopyInput& input);
     InventoryResult finish_inventory(const std::string& session_public_id, const FinishInventoryInput& input);
     InventoryResult get_inventory_result(const std::string& session_public_id) const;
+    std::vector<InventorySession> list_sessions(int limit = 50, int offset = 0) const;
 
 private:
     static std::string normalize_text(std::string value);

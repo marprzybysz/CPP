@@ -82,6 +82,7 @@ public:
                                                             const inventory::RegisterScannedCopyInput& input);
     inventory::InventoryResult finish_inventory(const std::string& session_public_id, const inventory::FinishInventoryInput& input);
     inventory::InventoryResult get_inventory_result(const std::string& session_public_id) const;
+    std::vector<inventory::InventorySession> list_inventory_sessions(int limit = 50, int offset = 0) const;
 
     readers::Reader add_reader(const readers::CreateReaderInput& input);
     readers::Reader edit_reader(const std::string& public_id, const readers::UpdateReaderInput& input);

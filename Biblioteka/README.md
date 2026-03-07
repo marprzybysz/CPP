@@ -122,6 +122,8 @@ Szkielet TUI jest podzielony na:
 - `ui/controllers/CopiesController`: adapter przypadków użycia modułu egzemplarzy.
 - `ui/controllers/LoansController`: adapter przypadków użycia modułu wypożyczeń (na bazie `reservations`).
 - `ui/controllers/ReservationsController`: adapter przypadków użycia modułu rezerwacji.
+- `ui/controllers/LocationsController`: adapter przypadków użycia modułu lokalizacji.
+- `ui/controllers/InventoryController`: adapter przypadków użycia modułu inwentaryzacji.
 
 Wspólne komponenty TUI (`ui/components`) gotowe do użycia przez moduły książek, czytelników i wypożyczeń:
 - `Header`
@@ -263,6 +265,30 @@ Workflow:
    - `Enter` otwiera szczegóły,
    - `q` wraca do dashboardu.
 3. Widok listy i szczegółów pokazuje status rezerwacji oraz datę wygaśnięcia.
+
+## Ekran TUI: Lokalizacje
+Moduł ekranów lokalizacji:
+- `LocationTreeScreen`: przegląd drzewa lokalizacji,
+- `LocationDetailsScreen`: szczegóły lokalizacji i lista przypisanych egzemplarzy.
+
+Workflow:
+1. Z `Dashboard` wybierz `Lokalizacje`.
+2. W `LocationTreeScreen` poruszaj się `góra/dół` i wejdź w szczegóły (`Enter`).
+3. `LocationDetailsScreen` pokazuje dane lokalizacji oraz listę egzemplarzy przypisanych do lokalizacji.
+
+## Ekran TUI: Inwentaryzacja
+Moduł ekranów inwentaryzacji:
+- `InventoryListScreen`: lista sesji, start nowej sesji,
+- `InventorySessionScreen`: wybór lokalizacji, skanowanie/dodawanie egzemplarzy, zakończenie sesji,
+- `InventoryResultScreen`: wynik sesji inwentaryzacji.
+
+Workflow:
+1. Z `Dashboard` wybierz `Inwentaryzacja`.
+2. `a` otwiera nową sesję (`InventorySessionScreen`) i pozwala wybrać lokalizację (`Enter`).
+3. W aktywnej sesji:
+   - `s:<kod>` dodaje zeskanowany/wpisany egzemplarz,
+   - `f` kończy inwentaryzację.
+4. Po zakończeniu otwiera się `InventoryResultScreen` z podsumowaniem i brakami.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:

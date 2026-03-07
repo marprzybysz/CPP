@@ -189,6 +189,10 @@ inventory::InventoryResult Library::get_inventory_result(const std::string& sess
     return inventory_service_.get_inventory_result(session_public_id);
 }
 
+std::vector<inventory::InventorySession> Library::list_inventory_sessions(int limit, int offset) const {
+    return inventory_service_.list_sessions(limit, offset);
+}
+
 readers::Reader Library::add_reader(const readers::CreateReaderInput& input) {
     readers::Reader created = reader_service_.add_reader(input);
     log_system_audit(audit::AuditModule::Readers, "READER", created.public_id, "CREATE", "reader added");

@@ -11,6 +11,11 @@
 #include "ui/screens/copy_location_screen.hpp"
 #include "ui/screens/copy_status_screen.hpp"
 #include "ui/screens/dashboard_screen.hpp"
+#include "ui/screens/inventory_list_screen.hpp"
+#include "ui/screens/inventory_result_screen.hpp"
+#include "ui/screens/inventory_session_screen.hpp"
+#include "ui/screens/location_details_screen.hpp"
+#include "ui/screens/location_tree_screen.hpp"
 #include "ui/screens/loan_create_screen.hpp"
 #include "ui/screens/loan_details_screen.hpp"
 #include "ui/screens/loan_extend_dialog_screen.hpp"
@@ -39,7 +44,9 @@ ApplicationController::ApplicationController(Library& library, ScreenManager& sc
       copies_controller_(library_),
       loans_controller_(library_),
       readers_controller_(library_),
-      reservations_controller_(library_) {}
+      reservations_controller_(library_),
+      locations_controller_(library_),
+      inventory_controller_(library_) {}
 
 void ApplicationController::bootstrap() {
     screen_manager_.register_screen(std::make_unique<screens::DashboardScreen>(dashboard_controller_));
@@ -66,8 +73,11 @@ void ApplicationController::bootstrap() {
     screen_manager_.register_screen(std::make_unique<screens::ReservationListScreen>(reservations_controller_));
     screen_manager_.register_screen(std::make_unique<screens::ReservationDetailsScreen>(reservations_controller_));
     screen_manager_.register_screen(std::make_unique<screens::ReservationCreateScreen>(reservations_controller_));
-    screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("locations", "Lokalizacje"));
-    screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("inventory", "Inwentaryzacja"));
+    screen_manager_.register_screen(std::make_unique<screens::LocationTreeScreen>(locations_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::LocationDetailsScreen>(locations_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::InventoryListScreen>(inventory_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::InventorySessionScreen>(inventory_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::InventoryResultScreen>(inventory_controller_));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("reports", "Raporty"));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("notes", "Notatki"));
     screen_manager_.set_active("dashboard");
