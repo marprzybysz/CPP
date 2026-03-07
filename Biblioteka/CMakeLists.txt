@@ -10,6 +10,9 @@ add_executable(cpp_biblioteka
     src/db.cpp
     src/library.cpp
     src/common/system_id.cpp
+    src/audit/audit_event.cpp
+    src/audit/audit_service.cpp
+    src/audit/sqlite_audit_repository.cpp
     src/books/book_service.cpp
     src/books/sqlite_book_repository.cpp
     src/copies/copy.cpp

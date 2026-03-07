@@ -5,6 +5,8 @@
 Library::Library(Db& db)
     : db_(db),
       id_generator_(),
+      audit_repository_(db_),
+      audit_service_(audit_repository_),
       book_repository_(db_),
       book_service_(book_repository_, id_generator_),
       copy_repository_(db_),
@@ -25,15 +27,20 @@ Library::Library(Db& db)
       report_service_(report_repository_, id_generator_) {}
 
 books::Book Library::add_book(const books::CreateBookInput& input) {
-    return book_service_.add_book(input);
+    books::Book created = book_service_.add_book(input);
+    log_system_audit(audit::AuditModule::Books, "BOOK", created.public_id, "CREATE", "book added");
+    return created;
 }
 
 books::Book Library::edit_book(const std::string& public_id, const books::UpdateBookInput& input) {
-    return book_service_.edit_book(public_id, input);
+    books::Book updated = book_service_.edit_book(public_id, input);
+    log_system_audit(audit::AuditModule::Books, "BOOK", updated.public_id, "UPDATE", "book edited");
+    return updated;
 }
 
 void Library::archive_book(const std::string& public_id) {
     book_service_.archive_book(public_id);
+    log_system_audit(audit::AuditModule::Books, "BOOK", public_id, "ARCHIVE", "book archived");
 }
 
 books::Book Library::get_book_details(const std::string& public_id, bool include_archived) const {
@@ -60,11 +67,15 @@ void Library::display_books(const std::vector<books::Book>& books) const {
 }
 
 copies::BookCopy Library::add_copy(const copies::CreateCopyInput& input) {
-    return copy_service_.add_copy(input);
+    copies::BookCopy created = copy_service_.add_copy(input);
+    log_system_audit(audit::AuditModule::Copies, "COPY", created.public_id, "CREATE", "copy added");
+    return created;
 }
 
 copies::BookCopy Library::edit_copy(const std::string& public_id, const copies::UpdateCopyInput& input) {
-    return copy_service_.edit_copy(public_id, input);
+    copies::BookCopy updated = copy_service_.edit_copy(public_id, input);
+    log_system_audit(audit::AuditModule::Copies, "COPY", updated.public_id, "UPDATE", "copy edited");
+    return updated;
 }
 
 copies::BookCopy Library::get_copy(const std::string& public_id) const {
@@ -79,14 +90,19 @@ copies::BookCopy Library::change_copy_status(const std::string& public_id,
                                              copies::CopyStatus new_status,
                                              const std::string& note,
                                              const std::optional<std::string>& archival_reason) {
-    return copy_service_.change_status(public_id, new_status, note, archival_reason);
+    copies::BookCopy updated = copy_service_.change_status(public_id, new_status, note, archival_reason);
+    log_system_audit(
+        audit::AuditModule::Copies, "COPY", updated.public_id, "CHANGE_STATUS", "status changed to " + copies::to_string(new_status));
+    return updated;
 }
 
 copies::BookCopy Library::change_copy_location(const std::string& public_id,
                                                const std::optional<std::string>& current_location_id,
                                                const std::optional<std::string>& target_location_id,
                                                const std::string& note) {
-    return copy_service_.change_location(public_id, current_location_id, target_location_id, note);
+    copies::BookCopy updated = copy_service_.change_location(public_id, current_location_id, target_location_id, note);
+    log_system_audit(audit::AuditModule::Copies, "COPY", updated.public_id, "CHANGE_LOCATION", "copy location changed");
+    return updated;
 }
 
 locations::Location Library::create_location(const locations::CreateLocationInput& input) {
@@ -110,17 +126,32 @@ std::vector<copies::BookCopy> Library::get_location_copies(const std::string& pu
 }
 
 inventory::InventorySession Library::start_inventory(const inventory::StartInventoryInput& input) {
-    return inventory_service_.start_inventory(input);
+    inventory::InventorySession session = inventory_service_.start_inventory(input);
+    log_system_audit(
+        audit::AuditModule::Inventory, "INVENTORY_SESSION", session.public_id, "START", "inventory started at " + session.location_public_id);
+    return session;
 }
 
 inventory::InventoryScannedCopy Library::register_inventory_scan(const std::string& session_public_id,
                                                                  const inventory::RegisterScannedCopyInput& input) {
-    return inventory_service_.register_scanned_copy(session_public_id, input);
+    inventory::InventoryScannedCopy scan = inventory_service_.register_scanned_copy(session_public_id, input);
+    log_system_audit(audit::AuditModule::Inventory,
+                     "INVENTORY_SESSION",
+                     session_public_id,
+                     "REGISTER_SCAN",
+                     "scan registered for copy " + scan.copy_public_id);
+    return scan;
 }
 
 inventory::InventoryResult Library::finish_inventory(const std::string& session_public_id,
                                                      const inventory::FinishInventoryInput& input) {
-    return inventory_service_.finish_inventory(session_public_id, input);
+    inventory::InventoryResult result = inventory_service_.finish_inventory(session_public_id, input);
+    log_system_audit(audit::AuditModule::Inventory,
+                     "INVENTORY_SESSION",
+                     session_public_id,
+                     "FINISH",
+                     result.session.summary_result);
+    return result;
 }
 
 inventory::InventoryResult Library::get_inventory_result(const std::string& session_public_id) const {
@@ -128,11 +159,15 @@ inventory::InventoryResult Library::get_inventory_result(const std::string& sess
 }
 
 readers::Reader Library::add_reader(const readers::CreateReaderInput& input) {
-    return reader_service_.add_reader(input);
+    readers::Reader created = reader_service_.add_reader(input);
+    log_system_audit(audit::AuditModule::Readers, "READER", created.public_id, "CREATE", "reader added");
+    return created;
 }
 
 readers::Reader Library::edit_reader(const std::string& public_id, const readers::UpdateReaderInput& input) {
-    return reader_service_.edit_reader(public_id, input);
+    readers::Reader updated = reader_service_.edit_reader(public_id, input);
+    log_system_audit(audit::AuditModule::Readers, "READER", updated.public_id, "UPDATE", "reader edited");
+    return updated;
 }
 
 std::vector<readers::Reader> Library::search_readers(const readers::ReaderQuery& query) const {
@@ -144,11 +179,15 @@ readers::Reader Library::get_reader_details(const std::string& public_id) const 
 }
 
 readers::Reader Library::block_reader(const std::string& public_id, const std::string& reason) {
-    return reader_service_.block_account(public_id, reason);
+    readers::Reader updated = reader_service_.block_account(public_id, reason);
+    log_system_audit(audit::AuditModule::Readers, "READER", updated.public_id, "BLOCK", reason);
+    return updated;
 }
 
 readers::Reader Library::unblock_reader(const std::string& public_id) {
-    return reader_service_.unblock_account(public_id);
+    readers::Reader updated = reader_service_.unblock_account(public_id);
+    log_system_audit(audit::AuditModule::Readers, "READER", updated.public_id, "UNBLOCK", "reader unblocked");
+    return updated;
 }
 
 int Library::get_reader_reputation(int reader_id) const {
@@ -187,7 +226,9 @@ void Library::archive_note(const std::string& public_id) {
 }
 
 reservations::Reservation Library::create_reservation(const reservations::CreateReservationInput& input) {
-    return reservation_service_.create_reservation(input);
+    reservations::Reservation created = reservation_service_.create_reservation(input);
+    log_system_audit(audit::AuditModule::Loans, "RESERVATION", created.public_id, "CREATE", "loan reservation created");
+    return created;
 }
 
 reservations::Reservation Library::get_reservation_details(const std::string& public_id) const {
@@ -195,11 +236,15 @@ reservations::Reservation Library::get_reservation_details(const std::string& pu
 }
 
 reservations::Reservation Library::cancel_reservation(const std::string& public_id) {
-    return reservation_service_.cancel_reservation(public_id);
+    reservations::Reservation updated = reservation_service_.cancel_reservation(public_id);
+    log_system_audit(audit::AuditModule::Loans, "RESERVATION", updated.public_id, "CANCEL", "loan reservation cancelled");
+    return updated;
 }
 
 reservations::Reservation Library::expire_reservation(const std::string& public_id) {
-    return reservation_service_.expire_reservation(public_id);
+    reservations::Reservation updated = reservation_service_.expire_reservation(public_id);
+    log_system_audit(audit::AuditModule::Loans, "RESERVATION", updated.public_id, "EXPIRE", "loan reservation expired");
+    return updated;
 }
 
 std::optional<reservations::Reservation> Library::find_active_reservation_for_returned_copy(int copy_id) const {
@@ -207,25 +252,97 @@ std::optional<reservations::Reservation> Library::find_active_reservation_for_re
 }
 
 reports::OverdueBooksReport Library::generate_overdue_books_report(const reports::ReportQueryOptions& options) {
-    return report_service_.generate_overdue_books_report(options);
+    reports::OverdueBooksReport report = report_service_.generate_overdue_books_report(options);
+    if (report.public_id.has_value()) {
+        log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "overdue books report generated");
+    }
+    return report;
 }
 
 reports::DelinquentReadersReport Library::generate_delinquent_readers_report(const reports::ReportQueryOptions& options) {
-    return report_service_.generate_delinquent_readers_report(options);
+    reports::DelinquentReadersReport report = report_service_.generate_delinquent_readers_report(options);
+    if (report.public_id.has_value()) {
+        log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "delinquent readers report generated");
+    }
+    return report;
 }
 
 reports::MostBorrowedBooksReport Library::generate_most_borrowed_books_report(const reports::ReportQueryOptions& options) {
-    return report_service_.generate_most_borrowed_books_report(options);
+    reports::MostBorrowedBooksReport report = report_service_.generate_most_borrowed_books_report(options);
+    if (report.public_id.has_value()) {
+        log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "most borrowed books report generated");
+    }
+    return report;
 }
 
 reports::InventoryStateReport Library::generate_inventory_state_report(const reports::ReportQueryOptions& options) {
-    return report_service_.generate_inventory_state_report(options);
+    reports::InventoryStateReport report = report_service_.generate_inventory_state_report(options);
+    if (report.public_id.has_value()) {
+        log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "inventory state report generated");
+    }
+    return report;
 }
 
 reports::ArchivedBooksReport Library::generate_archived_books_report(const reports::ReportQueryOptions& options) {
-    return report_service_.generate_archived_books_report(options);
+    reports::ArchivedBooksReport report = report_service_.generate_archived_books_report(options);
+    if (report.public_id.has_value()) {
+        log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "archived books report generated");
+    }
+    return report;
 }
 
 reports::CopiesInRepairReport Library::generate_copies_in_repair_report(const reports::ReportQueryOptions& options) {
-    return report_service_.generate_copies_in_repair_report(options);
+    reports::CopiesInRepairReport report = report_service_.generate_copies_in_repair_report(options);
+    if (report.public_id.has_value()) {
+        log_system_audit(audit::AuditModule::Export, "REPORT", *report.public_id, "GENERATE", "copies in repair report generated");
+    }
+    return report;
+}
+
+audit::AuditEvent Library::log_audit_event(const audit::AuditLogInput& input) {
+    return audit_service_.log_event(input);
+}
+
+std::vector<audit::AuditEvent> Library::get_recent_audit_events(int limit) const {
+    return audit_service_.get_recent_events(limit);
+}
+
+std::vector<audit::AuditEvent> Library::get_audit_events_for_object(const std::string& object_type,
+                                                                     const std::string& object_public_id,
+                                                                     int limit) const {
+    return audit_service_.get_events_for_object(object_type, object_public_id, limit);
+}
+
+audit::AuditEvent Library::log_supply_event(const audit::AuditLogInput& input) {
+    audit::AuditLogInput enriched = input;
+    enriched.module = audit::AuditModule::Supply;
+    return audit_service_.log_event(enriched);
+}
+
+audit::AuditEvent Library::log_export_event(const audit::AuditLogInput& input) {
+    audit::AuditLogInput enriched = input;
+    enriched.module = audit::AuditModule::Export;
+    return audit_service_.log_event(enriched);
+}
+
+audit::AuditEvent Library::log_loan_event(const audit::AuditLogInput& input) {
+    audit::AuditLogInput enriched = input;
+    enriched.module = audit::AuditModule::Loans;
+    return audit_service_.log_event(enriched);
+}
+
+void Library::log_system_audit(audit::AuditModule module,
+                               const std::string& object_type,
+                               const std::string& object_public_id,
+                               const std::string& operation_type,
+                               const std::string& details) {
+    audit::AuditLogInput input;
+    input.module = module;
+    input.actor = "system";
+    input.object_type = object_type;
+    input.object_public_id = object_public_id;
+    input.operation_type = operation_type;
+    input.details = details;
+
+    (void)audit_service_.log_event(input);
 }

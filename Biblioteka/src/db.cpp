@@ -414,4 +414,24 @@ void Db::init_schema() {
                   "failed to create idx_report_snapshots_created_at");
     exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_report_exports_report_public_id ON report_exports(report_public_id);",
                   "failed to create idx_report_exports_report_public_id");
+
+    const char* create_audit_events_sql =
+        "CREATE TABLE IF NOT EXISTS audit_events ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "module TEXT NOT NULL CHECK(module IN ('SYSTEM','BOOKS','COPIES','READERS','LOANS','INVENTORY','SUPPLY','EXPORT')),"
+        "actor TEXT NOT NULL,"
+        "occurred_at TEXT NOT NULL DEFAULT (datetime('now')),"
+        "object_type TEXT NOT NULL,"
+        "object_public_id TEXT NOT NULL,"
+        "operation_type TEXT NOT NULL,"
+        "details TEXT NOT NULL DEFAULT ''"
+        ");";
+
+    exec_or_throw(db_, create_audit_events_sql, "failed to create audit_events table");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_audit_events_module ON audit_events(module);",
+                  "failed to create idx_audit_events_module");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_audit_events_object ON audit_events(object_type, object_public_id);",
+                  "failed to create idx_audit_events_object");
+    exec_or_throw(db_, "CREATE INDEX IF NOT EXISTS idx_audit_events_occurred_at ON audit_events(occurred_at);",
+                  "failed to create idx_audit_events_occurred_at");
 }

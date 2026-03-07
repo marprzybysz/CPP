@@ -1,7 +1,7 @@
 # Biblioteka
 
 Projekt `Biblioteka` to backend/logika systemu zarządzania biblioteką napisany w C++20.
-Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, lokalizacji, inwentaryzacji i błędów.
+Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, lokalizacji, inwentaryzacji, raportów, audytu i błędów.
 
 ## Cel projektu
 
@@ -71,6 +71,11 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `report_repository.hpp`
 - `sqlite_report_repository.hpp`
 - `report_service.hpp`
+- `audit/`
+- `audit_event.hpp`
+- `audit_repository.hpp`
+- `sqlite_audit_repository.hpp`
+- `audit_service.hpp`
 - `errors/`
 - `app_error.hpp`
 - `error_codes.hpp`
@@ -116,6 +121,10 @@ Rozwój backendu dla systemu bibliotecznego obejmującego:
 - `report.cpp`
 - `report_service.cpp`
 - `sqlite_report_repository.cpp`
+- `audit/`
+- `audit_event.cpp`
+- `audit_service.cpp`
+- `sqlite_audit_repository.cpp`
 - `errors/`
 - `error_logger.cpp`
 - `error_mapper.cpp`
@@ -164,6 +173,8 @@ Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli 
 - `reputation::ReputationService`: logika punktacji reputacji i automatycznej blokady
 - `reports::SqliteReportRepository`: warstwa danych raportów, snapshotów i bazy pod eksport CSV
 - `reports::ReportService`: logika generowania raportów operacyjnych i archiwizacji wyników
+- `audit::SqliteAuditRepository`: warstwa danych logów zdarzeń i audytu
+- `audit::AuditService`: spójny interfejs logowania operacji systemowych
 - `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
 
 ## Moduł katalogu książek
@@ -331,6 +342,30 @@ Integracja:
 Baza pod przyszły eksport CSV:
 - `report_snapshots`: przechowuje metadane i payload raportu
 - `report_exports`: kolejka/stan eksportów (`CSV`, `PENDING/DONE/FAILED`)
+
+## Moduł audytu i logów zdarzeń
+
+Każde zdarzenie audytowe zapisuje:
+- kto wykonał operację (`actor`)
+- kiedy (`occurred_at`)
+- na jakim obiekcie (`object_type`, `object_public_id`)
+- typ operacji (`operation_type`)
+- szczegóły (`details`)
+
+Spójny interfejs:
+- `audit::AuditService::log_event(const audit::AuditLogInput&)`
+
+Integracja w systemie:
+- `BOOKS`: operacje na książkach
+- `COPIES`: operacje na egzemplarzach
+- `READERS`: operacje na czytelnikach
+- `LOANS`: operacje związane z wypożyczeniami/rezerwacjami
+- `INVENTORY`: operacje inwentaryzacyjne
+- `SUPPLY`: punkt integracyjny dla modułu dostaw
+- `EXPORT`: operacje generowania/eksportu raportów
+
+Składowanie:
+- tabela `audit_events` z indeksami po module, obiekcie i czasie
 
 ## Moduł czytelników
 

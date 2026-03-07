@@ -1,4 +1,7 @@
 #pragma once
+#include "audit/audit_event.hpp"
+#include "audit/audit_service.hpp"
+#include "audit/sqlite_audit_repository.hpp"
 #include "books/book.hpp"
 #include "books/book_service.hpp"
 #include "books/sqlite_book_repository.hpp"
@@ -103,9 +106,27 @@ public:
     reports::ArchivedBooksReport generate_archived_books_report(const reports::ReportQueryOptions& options);
     reports::CopiesInRepairReport generate_copies_in_repair_report(const reports::ReportQueryOptions& options);
 
+    audit::AuditEvent log_audit_event(const audit::AuditLogInput& input);
+    std::vector<audit::AuditEvent> get_recent_audit_events(int limit = 100) const;
+    std::vector<audit::AuditEvent> get_audit_events_for_object(const std::string& object_type,
+                                                               const std::string& object_public_id,
+                                                               int limit = 100) const;
+
+    audit::AuditEvent log_supply_event(const audit::AuditLogInput& input);
+    audit::AuditEvent log_export_event(const audit::AuditLogInput& input);
+    audit::AuditEvent log_loan_event(const audit::AuditLogInput& input);
+
 private:
+    void log_system_audit(audit::AuditModule module,
+                          const std::string& object_type,
+                          const std::string& object_public_id,
+                          const std::string& operation_type,
+                          const std::string& details);
+
     Db& db_;
     common::SystemIdGenerator id_generator_;
+    audit::SqliteAuditRepository audit_repository_;
+    audit::AuditService audit_service_;
     books::SqliteBookRepository book_repository_;
     books::BookService book_service_;
     copies::SqliteCopyRepository copy_repository_;

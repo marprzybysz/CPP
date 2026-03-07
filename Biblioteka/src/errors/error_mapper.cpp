@@ -23,6 +23,8 @@ std::string to_user_message(const std::exception& ex) {
                 return "Inventory operation failed.";
             case ErrorCode::Report:
                 return "Reporting operation failed.";
+            case ErrorCode::Audit:
+                return "Audit logging operation failed.";
             default:
                 return "Unexpected application error.";
         }

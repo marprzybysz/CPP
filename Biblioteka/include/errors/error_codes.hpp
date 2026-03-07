@@ -11,6 +11,7 @@ enum class ErrorCode {
     Loan,
     Inventory,
     Report,
+    Audit,
 };
 
 } // namespace errors
