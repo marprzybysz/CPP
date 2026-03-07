@@ -69,6 +69,7 @@ add_executable(cpp_biblioteka
     src/ui/controllers/books_controller.cpp
     src/ui/controllers/copies_controller.cpp
     src/ui/controllers/dashboard_controller.cpp
+    src/ui/controllers/loans_controller.cpp
     src/ui/controllers/readers_controller.cpp
     src/ui/screens/book_details_screen.cpp
     src/ui/screens/book_form_screen.cpp
@@ -79,6 +80,11 @@ add_executable(cpp_biblioteka
     src/ui/screens/copy_location_screen.cpp
     src/ui/screens/copy_status_screen.cpp
     src/ui/screens/dashboard_screen.cpp
+    src/ui/screens/loan_create_screen.cpp
+    src/ui/screens/loan_details_screen.cpp
+    src/ui/screens/loan_extend_dialog_screen.cpp
+    src/ui/screens/loan_list_screen.cpp
+    src/ui/screens/loan_return_dialog_screen.cpp
     src/ui/screens/placeholder_screen.cpp
     src/ui/screens/reader_block_dialog_screen.cpp
     src/ui/screens/reader_details_screen.cpp

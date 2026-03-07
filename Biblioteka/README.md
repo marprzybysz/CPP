@@ -120,6 +120,7 @@ Szkielet TUI jest podzielony na:
 - `ui/controllers/DashboardController`: dostarcza metryki do dashboardu,
 - `ui/controllers/BooksController`: adapter przypadków użycia modułu książek,
 - `ui/controllers/CopiesController`: adapter przypadków użycia modułu egzemplarzy.
+- `ui/controllers/LoansController`: adapter przypadków użycia modułu wypożyczeń (na bazie `reservations`).
 
 Wspólne komponenty TUI (`ui/components`) gotowe do użycia przez moduły książek, czytelników i wypożyczeń:
 - `Header`
@@ -219,6 +220,32 @@ Workflow:
    - `r` reputacja,
    - `q` powrót.
 4. Widok szczegółów pokazuje: numer karty, imię i nazwisko, email, telefon, status konta, punkty reputacji i informację o blokadzie.
+
+## Ekran TUI: Wypożyczenia
+Moduł ekranów wypożyczeń:
+- `LoanListScreen`: lista aktywnych wypożyczeń i historia, wyszukiwanie oraz przełączanie trybu,
+- `LoanDetailsScreen`: szczegóły wybranego wypożyczenia,
+- `LoanCreateScreen`: tworzenie nowego wypożyczenia,
+- `LoanReturnDialogScreen`: dialog zwrotu (potwierdzenie operacji),
+- `LoanExtendDialogScreen`: dialog przedłużenia terminu zwrotu.
+
+Workflow:
+1. Z `Dashboard` wybierz `Wypożyczenia`.
+2. W `LoanListScreen`:
+   - `a` tworzy nowe wypożyczenie,
+   - `r` otwiera dialog zwrotu,
+   - `p` otwiera dialog przedłużenia,
+   - `Enter` przechodzi do szczegółów,
+   - `/` uruchamia wyszukiwanie,
+   - `h` przełącza widok `AKTYWNE`/`HISTORIA`,
+   - `q` wraca do dashboardu.
+3. Wyszukiwanie obsługuje:
+   - `reader:<fraza>` lub `r:<fraza>`,
+   - `copy:<fraza>` lub `c:<fraza>`,
+   - `card:<fraza>`,
+   - `inv:<fraza>`,
+   - lub ogólną frazę (łączoną z modułami readers/copies).
+4. Błędy biznesowe (np. `ReaderBlockedError`, `CopyUnavailableError`) są mapowane przez `errors::to_user_message(...)` i pokazywane w pasku statusu.
 
 ## Opis bazy danych SQLite
 Kluczowe tabele:

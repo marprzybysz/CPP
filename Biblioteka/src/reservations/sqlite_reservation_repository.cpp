@@ -135,6 +135,126 @@ Reservation SqliteReservationRepository::update_status(const std::string& public
     return get_by_public_id(public_id).value();
 }
 
+Reservation SqliteReservationRepository::update_expiration(const std::string& public_id, const std::string& expiration_date) {
+    const char* sql = "UPDATE reservations SET expiration_date = ?, updated_at = datetime('now') WHERE public_id = ?;";
+
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(db_.handle(), sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        throw_sqlite(db_.handle(), "prepare update reservation expiration failed");
+    }
+
+    sqlite3_bind_text(stmt, 1, expiration_date.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, public_id.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        throw_sqlite(db_.handle(), "update reservation expiration failed");
+    }
+
+    const int changed = sqlite3_changes(db_.handle());
+    sqlite3_finalize(stmt);
+
+    if (changed == 0) {
+        throw errors::NotFoundError("Reservation not found. public_id=" + public_id);
+    }
+
+    return get_by_public_id(public_id).value();
+}
+
+std::vector<LoanListItem> SqliteReservationRepository::list_loans(const LoanListQuery& query) const {
+    std::string sql =
+        "SELECT r.id, r.public_id, r.reader_id, r.copy_id, r.book_id, r.reservation_date, r.expiration_date, r.status, r.created_at, "
+        "r.updated_at, "
+        "rd.public_id, rd.first_name, rd.last_name, rd.card_number, "
+        "cp.public_id, cp.inventory_number "
+        "FROM reservations r "
+        "JOIN readers rd ON rd.id = r.reader_id "
+        "LEFT JOIN book_copies cp ON cp.id = r.copy_id "
+        "LEFT JOIN books bk ON bk.id = COALESCE(r.book_id, cp.book_id) "
+        "WHERE 1=1";
+
+    std::vector<std::string> text_bindings;
+
+    if (query.public_id.has_value() && !query.public_id->empty()) {
+        sql += " AND r.public_id = ?";
+        text_bindings.push_back(*query.public_id);
+    }
+
+    if (query.status.has_value()) {
+        sql += " AND r.status = ?";
+        text_bindings.push_back(to_string(*query.status));
+    }
+
+    if (query.reader_query.has_value() && !query.reader_query->empty()) {
+        sql += " AND (rd.public_id LIKE ? OR rd.card_number LIKE ? OR rd.first_name LIKE ? OR rd.last_name LIKE ?)";
+        const std::string pattern = "%" + *query.reader_query + "%";
+        text_bindings.push_back(pattern);
+        text_bindings.push_back(pattern);
+        text_bindings.push_back(pattern);
+        text_bindings.push_back(pattern);
+    }
+
+    if (query.copy_query.has_value() && !query.copy_query->empty()) {
+        sql += " AND (cp.public_id LIKE ? OR cp.inventory_number LIKE ? OR bk.title LIKE ?)";
+        const std::string pattern = "%" + *query.copy_query + "%";
+        text_bindings.push_back(pattern);
+        text_bindings.push_back(pattern);
+        text_bindings.push_back(pattern);
+    }
+
+    if (query.card_number.has_value() && !query.card_number->empty()) {
+        sql += " AND rd.card_number LIKE ?";
+        text_bindings.push_back("%" + *query.card_number + "%");
+    }
+
+    if (query.inventory_number.has_value() && !query.inventory_number->empty()) {
+        sql += " AND cp.inventory_number LIKE ?";
+        text_bindings.push_back("%" + *query.inventory_number + "%");
+    }
+
+    sql += " ORDER BY r.created_at DESC, r.id DESC LIMIT ? OFFSET ?;";
+
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(db_.handle(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        throw_sqlite(db_.handle(), "prepare list loans failed");
+    }
+
+    int bind_index = 1;
+    for (const auto& text : text_bindings) {
+        sqlite3_bind_text(stmt, bind_index++, text.c_str(), -1, SQLITE_TRANSIENT);
+    }
+    sqlite3_bind_int(stmt, bind_index++, query.limit);
+    sqlite3_bind_int(stmt, bind_index, query.offset);
+
+    std::vector<LoanListItem> out;
+    while (true) {
+        const int rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW) {
+            LoanListItem item;
+            item.reservation = map_reservation(stmt);
+            item.reader_public_id = read_text(stmt, 10);
+            item.reader_name = read_text(stmt, 11) + " " + read_text(stmt, 12);
+            item.card_number = read_text(stmt, 13);
+            if (sqlite3_column_type(stmt, 14) != SQLITE_NULL) {
+                item.copy_public_id = read_text(stmt, 14);
+            }
+            if (sqlite3_column_type(stmt, 15) != SQLITE_NULL) {
+                item.inventory_number = read_text(stmt, 15);
+            }
+            item.extension_count = 0;
+            out.push_back(std::move(item));
+        } else if (rc == SQLITE_DONE) {
+            break;
+        } else {
+            sqlite3_finalize(stmt);
+            throw_sqlite(db_.handle(), "list loans failed");
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    return out;
+}
+
 ReaderReservationInfo SqliteReservationRepository::get_reader_info(int reader_id) const {
     const char* sql = "SELECT is_blocked FROM readers WHERE id = ? LIMIT 1;";
     sqlite3_stmt* stmt = nullptr;

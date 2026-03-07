@@ -108,12 +108,53 @@ Reservation ReservationService::expire_reservation(const std::string& public_id)
     return updated;
 }
 
+Reservation ReservationService::fulfill_reservation(const std::string& public_id) {
+    const Reservation reservation = get_reservation_details(public_id);
+    if (reservation.status != ReservationStatus::Active) {
+        throw errors::ValidationError("Only ACTIVE reservation can be fulfilled");
+    }
+
+    Reservation updated = repository_.update_status(public_id, ReservationStatus::Fulfilled);
+    logger_("reservation fulfilled public_id=" + updated.public_id);
+    return updated;
+}
+
+Reservation ReservationService::extend_reservation(const std::string& public_id, const std::string& expiration_date) {
+    if (expiration_date.empty()) {
+        throw errors::ValidationError("expiration_date is required");
+    }
+
+    const Reservation reservation = get_reservation_details(public_id);
+    if (reservation.status != ReservationStatus::Active) {
+        throw errors::ValidationError("Only ACTIVE reservation can be extended");
+    }
+
+    if (expiration_date <= reservation.expiration_date) {
+        throw errors::ValidationError("New expiration_date must be later than current expiration_date");
+    }
+
+    Reservation updated = repository_.update_expiration(public_id, expiration_date);
+    logger_("reservation extended public_id=" + updated.public_id + " new_expiration=" + updated.expiration_date);
+    return updated;
+}
+
 Reservation ReservationService::get_reservation_details(const std::string& public_id) const {
     const auto found = repository_.get_by_public_id(public_id);
     if (!found.has_value()) {
         throw errors::NotFoundError("Reservation not found. public_id=" + public_id);
     }
     return *found;
+}
+
+std::vector<LoanListItem> ReservationService::list_loans(const LoanListQuery& query) const {
+    if (query.limit <= 0) {
+        throw errors::ValidationError("loan list limit must be greater than zero");
+    }
+    if (query.offset < 0) {
+        throw errors::ValidationError("loan list offset cannot be negative");
+    }
+
+    return repository_.list_loans(query);
 }
 
 std::optional<Reservation> ReservationService::find_active_for_returned_copy(int copy_id) const {

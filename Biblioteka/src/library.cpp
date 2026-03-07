@@ -282,6 +282,26 @@ reservations::Reservation Library::expire_reservation(const std::string& public_
     return updated;
 }
 
+reservations::Reservation Library::fulfill_loan(const std::string& public_id) {
+    reservations::Reservation updated = reservation_service_.fulfill_reservation(public_id);
+    log_system_audit(audit::AuditModule::Loans, "RESERVATION", updated.public_id, "RETURN", "loan marked as fulfilled");
+    return updated;
+}
+
+reservations::Reservation Library::extend_loan(const std::string& public_id, const std::string& expiration_date) {
+    reservations::Reservation updated = reservation_service_.extend_reservation(public_id, expiration_date);
+    log_system_audit(audit::AuditModule::Loans,
+                     "RESERVATION",
+                     updated.public_id,
+                     "EXTEND",
+                     "loan extended to " + updated.expiration_date);
+    return updated;
+}
+
+std::vector<reservations::LoanListItem> Library::list_loans(const reservations::LoanListQuery& query) const {
+    return reservation_service_.list_loans(query);
+}
+
 std::optional<reservations::Reservation> Library::find_active_reservation_for_returned_copy(int copy_id) const {
     return reservation_service_.find_active_for_returned_copy(copy_id);
 }

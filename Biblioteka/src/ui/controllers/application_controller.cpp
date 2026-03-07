@@ -11,6 +11,11 @@
 #include "ui/screens/copy_location_screen.hpp"
 #include "ui/screens/copy_status_screen.hpp"
 #include "ui/screens/dashboard_screen.hpp"
+#include "ui/screens/loan_create_screen.hpp"
+#include "ui/screens/loan_details_screen.hpp"
+#include "ui/screens/loan_extend_dialog_screen.hpp"
+#include "ui/screens/loan_list_screen.hpp"
+#include "ui/screens/loan_return_dialog_screen.hpp"
 #include "ui/screens/placeholder_screen.hpp"
 #include "ui/screens/reader_block_dialog_screen.hpp"
 #include "ui/screens/reader_details_screen.hpp"
@@ -29,6 +34,7 @@ ApplicationController::ApplicationController(Library& library, ScreenManager& sc
       dashboard_controller_(library_),
       books_controller_(library_),
       copies_controller_(library_),
+      loans_controller_(library_),
       readers_controller_(library_) {}
 
 void ApplicationController::bootstrap() {
@@ -48,7 +54,11 @@ void ApplicationController::bootstrap() {
     screen_manager_.register_screen(std::make_unique<screens::ReaderUnblockDialogScreen>(readers_controller_));
     screen_manager_.register_screen(std::make_unique<screens::ReaderReputationScreen>(readers_controller_));
     screen_manager_.register_screen(std::make_unique<screens::ReaderLoanHistoryScreen>(readers_controller_));
-    screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("loans", "Wypozyczenia"));
+    screen_manager_.register_screen(std::make_unique<screens::LoanListScreen>(loans_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::LoanDetailsScreen>(loans_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::LoanCreateScreen>(loans_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::LoanReturnDialogScreen>(loans_controller_));
+    screen_manager_.register_screen(std::make_unique<screens::LoanExtendDialogScreen>(loans_controller_));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("reservations", "Rezerwacje"));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("locations", "Lokalizacje"));
     screen_manager_.register_screen(std::make_unique<screens::PlaceholderScreen>("inventory", "Inwentaryzacja"));

@@ -32,6 +32,27 @@ struct CreateReservationInput {
     std::string expiration_date;
 };
 
+struct LoanListQuery {
+    std::optional<std::string> public_id;
+    std::optional<ReservationStatus> status;
+    std::optional<std::string> reader_query;
+    std::optional<std::string> copy_query;
+    std::optional<std::string> card_number;
+    std::optional<std::string> inventory_number;
+    int limit{100};
+    int offset{0};
+};
+
+struct LoanListItem {
+    Reservation reservation;
+    std::string reader_public_id;
+    std::string reader_name;
+    std::string card_number;
+    std::optional<std::string> copy_public_id;
+    std::optional<std::string> inventory_number;
+    int extension_count{0};
+};
+
 [[nodiscard]] std::string to_string(ReservationStatus status);
 [[nodiscard]] ReservationStatus reservation_status_from_string(const std::string& raw);
 

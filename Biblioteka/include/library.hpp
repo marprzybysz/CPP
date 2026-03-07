@@ -109,6 +109,9 @@ public:
     reservations::Reservation get_reservation_details(const std::string& public_id) const;
     reservations::Reservation cancel_reservation(const std::string& public_id);
     reservations::Reservation expire_reservation(const std::string& public_id);
+    reservations::Reservation fulfill_loan(const std::string& public_id);
+    reservations::Reservation extend_loan(const std::string& public_id, const std::string& expiration_date);
+    std::vector<reservations::LoanListItem> list_loans(const reservations::LoanListQuery& query) const;
     std::optional<reservations::Reservation> find_active_reservation_for_returned_copy(int copy_id) const;
 
     reports::OverdueBooksReport generate_overdue_books_report(const reports::ReportQueryOptions& options);
