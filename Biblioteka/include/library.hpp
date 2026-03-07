@@ -1,4 +1,8 @@
 #pragma once
+#include <optional>
+#include <string>
+#include <vector>
+
 #include "audit/audit_event.hpp"
 #include "audit/audit_service.hpp"
 #include "audit/sqlite_audit_repository.hpp"
@@ -13,37 +17,34 @@
 #include "exports/export.hpp"
 #include "exports/export_service.hpp"
 #include "exports/sqlite_export_repository.hpp"
-#include "locations/location.hpp"
-#include "locations/location_service.hpp"
-#include "locations/sqlite_location_repository.hpp"
-#include "inventory/inventory.hpp"
-#include "inventory/inventory_service.hpp"
-#include "inventory/sqlite_inventory_repository.hpp"
 #include "imports/csv_import_parser.hpp"
 #include "imports/import.hpp"
 #include "imports/import_service.hpp"
 #include "imports/sqlite_import_repository.hpp"
+#include "inventory/inventory.hpp"
+#include "inventory/inventory_service.hpp"
+#include "inventory/sqlite_inventory_repository.hpp"
+#include "locations/location.hpp"
+#include "locations/location_service.hpp"
+#include "locations/sqlite_location_repository.hpp"
 #include "notes/note.hpp"
 #include "notes/note_service.hpp"
 #include "notes/sqlite_note_repository.hpp"
 #include "readers/reader.hpp"
 #include "readers/reader_service.hpp"
 #include "readers/sqlite_reader_repository.hpp"
-#include "reputation/reputation.hpp"
-#include "reputation/reputation_service.hpp"
-#include "reputation/sqlite_reputation_repository.hpp"
 #include "reports/report.hpp"
 #include "reports/report_service.hpp"
 #include "reports/sqlite_report_repository.hpp"
-#include "search/search.hpp"
-#include "search/search_service.hpp"
-#include "search/sqlite_search_repository.hpp"
+#include "reputation/reputation.hpp"
+#include "reputation/reputation_service.hpp"
+#include "reputation/sqlite_reputation_repository.hpp"
 #include "reservations/reservation.hpp"
 #include "reservations/reservation_service.hpp"
 #include "reservations/sqlite_reservation_repository.hpp"
-#include <optional>
-#include <string>
-#include <vector>
+#include "search/search.hpp"
+#include "search/search_service.hpp"
+#include "search/sqlite_search_repository.hpp"
 
 class Library {
 public:

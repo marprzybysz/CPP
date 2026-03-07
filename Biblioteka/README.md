@@ -1,676 +1,167 @@
 # Biblioteka
 
-Projekt `Biblioteka` to backend/logika systemu zarządzania biblioteką napisany w C++20.
-Aktualnie projekt opiera się na CMake i SQLite3 oraz zawiera moduły: katalogu książek, egzemplarzy, wycofywania, lokalizacji, inwentaryzacji, raportów, wyszukiwania, audytu, importu i błędów.
+## Opis projektu
+`Biblioteka` to backend systemu bibliotecznego napisany w C++20. Projekt jest modułowy, oparty o wzorzec `service + repository`, a dane są przechowywane w SQLite.
 
-## Cel projektu
+System obejmuje zarządzanie katalogiem książek, egzemplarzami, czytelnikami, lokalizacją, rezerwacjami, inwentaryzacją, raportowaniem, audytem, importem danych, wycofywaniem egzemplarzy oraz globalnym wyszukiwaniem.
 
-Rozwój backendu dla systemu bibliotecznego obejmującego:
-- katalog książek
-- egzemplarze
-- czytelników
-- wypożyczenia i rezerwacje
-- lokalizacje i inwentaryzację
-- raporty i notatki
-- reputację czytelników
-- zakup i wycofywanie książek
-- logi zdarzeń
-- moduł błędów
+## Cel systemu
+Celem systemu jest dostarczenie spójnego backendu do:
+- ewidencji książek i egzemplarzy,
+- zarządzania czytelnikami,
+- obsługi procesów operacyjnych (rezerwacje, inwentaryzacja, wycofania),
+- raportowania i monitoringu,
+- bezpiecznej obsługi błędów,
+- przygotowania pod dalszą rozbudowę (frontend, API, dodatkowe integracje).
 
-## Aktualna struktura (folder `Biblioteka`)
+## Architektura projektu
+Główne zasady architektury:
+- `Library` jest fasadą łączącą wszystkie moduły.
+- Każdy moduł ma własne modele domenowe (`include/<module>`), serwis (`*Service`) i repozytorium (`*Repository`).
+- Implementacje SQLite są oddzielone od logiki biznesowej (`Sqlite*Repository`).
+- Logika biznesowa i walidacje są w serwisach, a mapowanie SQL w repozytoriach.
+- Identyfikatory systemowe są generowane centralnie przez `common::SystemIdGenerator`.
+- Błędy domenowe i komunikaty użytkownika są obsługiwane przez moduł `errors`.
 
-- `CMakeLists.txt`
-- `include/`
-- `book.hpp`
-- `db.hpp`
-- `library.hpp`
-- `common/`
-- `system_id.hpp`
-- `books/`
-- `book.hpp`
-- `book_repository.hpp`
-- `sqlite_book_repository.hpp`
-- `book_service.hpp`
-- `copies/`
-- `copy.hpp`
-- `copy_repository.hpp`
-- `sqlite_copy_repository.hpp`
-- `copy_service.hpp`
-- `locations/`
-- `location.hpp`
-- `location_repository.hpp`
-- `sqlite_location_repository.hpp`
-- `location_service.hpp`
-- `inventory/`
-- `inventory.hpp`
-- `inventory_repository.hpp`
-- `sqlite_inventory_repository.hpp`
-- `inventory_service.hpp`
-- `exports/`
-- `export.hpp`
-- `export_repository.hpp`
-- `sqlite_export_repository.hpp`
-- `export_service.hpp`
-- `imports/`
-- `import.hpp`
-- `import_parser.hpp`
-- `csv_import_parser.hpp`
-- `import_repository.hpp`
-- `sqlite_import_repository.hpp`
-- `import_service.hpp`
-- `notes/`
-- `note.hpp`
-- `note_repository.hpp`
-- `sqlite_note_repository.hpp`
-- `note_service.hpp`
-- `reservations/`
-- `reservation.hpp`
-- `reservation_repository.hpp`
-- `sqlite_reservation_repository.hpp`
-- `reservation_service.hpp`
-- `readers/`
-- `reader.hpp`
-- `reader_repository.hpp`
-- `sqlite_reader_repository.hpp`
-- `reader_service.hpp`
-- `reputation/`
-- `reputation.hpp`
-- `reputation_repository.hpp`
-- `sqlite_reputation_repository.hpp`
-- `reputation_service.hpp`
-- `reports/`
-- `report.hpp`
-- `report_repository.hpp`
-- `sqlite_report_repository.hpp`
-- `report_service.hpp`
-- `search/`
-- `search.hpp`
-- `search_repository.hpp`
-- `sqlite_search_repository.hpp`
-- `search_service.hpp`
-- `audit/`
-- `audit_event.hpp`
-- `audit_repository.hpp`
-- `sqlite_audit_repository.hpp`
-- `audit_service.hpp`
-- `errors/`
-- `app_error.hpp`
-- `error_codes.hpp`
-- `error_logger.hpp`
-- `error_mapper.hpp`
-- `src/`
-- `main.cpp`
-- `db.cpp`
-- `library.cpp`
-- `common/`
-- `system_id.cpp`
-- `books/`
-- `book_service.cpp`
-- `sqlite_book_repository.cpp`
-- `copies/`
-- `copy.cpp`
-- `copy_service.cpp`
-- `sqlite_copy_repository.cpp`
-- `locations/`
-- `location.cpp`
-- `location_service.cpp`
-- `sqlite_location_repository.cpp`
-- `inventory/`
-- `inventory.cpp`
-- `inventory_service.cpp`
-- `sqlite_inventory_repository.cpp`
-- `exports/`
-- `export.cpp`
-- `export_service.cpp`
-- `sqlite_export_repository.cpp`
-- `imports/`
-- `import.cpp`
-- `csv_import_parser.cpp`
-- `import_service.cpp`
-- `sqlite_import_repository.cpp`
-- `notes/`
-- `note.cpp`
-- `note_service.cpp`
-- `sqlite_note_repository.cpp`
-- `reservations/`
-- `reservation.cpp`
-- `reservation_service.cpp`
-- `sqlite_reservation_repository.cpp`
-- `readers/`
-- `reader.cpp`
-- `reader_service.cpp`
-- `sqlite_reader_repository.cpp`
-- `reputation/`
-- `reputation_service.cpp`
-- `sqlite_reputation_repository.cpp`
-- `reports/`
-- `report.cpp`
-- `report_service.cpp`
-- `sqlite_report_repository.cpp`
-- `search/`
-- `search_service.cpp`
-- `sqlite_search_repository.cpp`
-- `audit/`
-- `audit_event.cpp`
-- `audit_service.cpp`
-- `sqlite_audit_repository.cpp`
-- `errors/`
-- `error_logger.cpp`
-- `error_mapper.cpp`
+## Aktualna struktura katalogów
+```text
+Biblioteka/
+├── CMakeLists.txt
+├── README.md
+├── include/
+│   ├── library.hpp
+│   ├── db.hpp
+│   ├── common/
+│   ├── errors/
+│   ├── books/
+│   ├── copies/
+│   ├── readers/
+│   ├── reservations/
+│   ├── locations/
+│   ├── inventory/
+│   ├── reports/
+│   ├── search/
+│   ├── audit/
+│   ├── exports/
+│   ├── imports/
+│   ├── notes/
+│   └── reputation/
+└── src/
+    ├── main.cpp
+    ├── db.cpp
+    ├── library.cpp
+    ├── common/
+    ├── errors/
+    ├── books/
+    ├── copies/
+    ├── readers/
+    ├── reservations/
+    ├── locations/
+    ├── inventory/
+    ├── reports/
+    ├── search/
+    ├── audit/
+    ├── exports/
+    ├── imports/
+    ├── notes/
+    └── reputation/
+```
 
-## Zależności
+## Opis wszystkich modułów
+- `books`: katalog książek, walidacja ISBN, archiwizacja logiczna książek.
+- `copies`: egzemplarze książek, statusy (`ON_SHELF`, `LOANED`, `RESERVED`, `IN_REPAIR`, `ARCHIVED`, `LOST`), historia statusu i lokalizacji.
+- `readers`: konta czytelników, walidacja e-mail, numer karty, blokady.
+- `reservations` (warstwa loan): rezerwacje aktywne/anulowane/wygasłe, kolejka aktywnych rezerwacji dla egzemplarza/książki.
+- `locations`: hierarchia `LIBRARY -> ROOM -> RACK -> SHELF` i przypisanie egzemplarzy.
+- `inventory`: spis z natury dla `ROOM/RACK/SHELF`, klasyfikacja wyników (`ON_SHELF`, `JUSTIFIED`, `MISSING`).
+- `reports`: raporty operacyjne + snapshoty wyników i baza pod eksport CSV.
+- `search`: globalna wyszukiwarka po książkach/egzemplarzach/czytelnikach z informacją o statusie, lokalizacji i potencjalnym posiadaczu.
+- `audit`: centralne logi zdarzeń systemowych (kto, kiedy, na jakim obiekcie, typ operacji, szczegóły).
+- `exports`: wycofanie egzemplarzy z obiegu z powodami biznesowymi i zmianą statusu na `ARCHIVED`/`LOST`.
+- `imports`: import danych (aktualnie CSV) dla książek i czytelników, raport błędów per rekord; architektura przygotowana pod Excel i inne źródła.
+- `notes`: notatki generyczne dla obiektów domenowych.
+- `reputation`: punktacja reputacji czytelników i automatyczne reguły blokad.
+- `errors`: typowane wyjątki aplikacyjne, mapowanie na komunikaty użytkownika, logger błędów.
+- `common`: współdzielone narzędzia (m.in. generator identyfikatorów).
+- `Db`: połączenie i inicjalizacja schematu SQLite.
 
-- CMake >= 3.20
+## Wymagania i zależności
+- CMake `>= 3.20`
 - Kompilator C++20 (`g++` lub `clang++`)
-- SQLite3 (biblioteka developerska)
+- SQLite3 (nagłówki + biblioteka linkowana)
 
-## Budowanie projektu
-
+## Budowanie przez CMake
 ```bash
 cd Biblioteka
 cmake -S . -B build
 cmake --build build
 ```
 
-## Uruchamianie
-
+## Uruchomienie
 ```bash
 ./build/cpp_biblioteka
 ```
 
-Program tworzy/otwiera lokalną bazę `library.db`, inicjalizuje schemat tabeli `books` i wykonuje prosty przepływ dodania książki.
-
-## Moduły istniejące
-
-- `Db`: połączenie z SQLite i inicjalizacja schematu
-- `Library`: fasada dla modułów domenowych
-- `common::SystemIdGenerator`: uniwersalny generator identyfikatorów systemowych
-- `books::SqliteBookRepository`: warstwa dostępu do danych katalogu książek
-- `books::BookService`: logika biznesowa katalogu książek (walidacja ISBN, public_id, logowanie operacji)
-- `copies::SqliteCopyRepository`: warstwa dostępu do danych egzemplarzy i historii zmian
-- `copies::CopyService`: logika biznesowa egzemplarzy (walidacja, przejścia statusów, lokalizacja)
-- `locations::SqliteLocationRepository`: warstwa danych lokalizacji i przypisanych egzemplarzy
-- `locations::LocationService`: logika hierarchii lokalizacji i operacji drzewiastych
-- `inventory::SqliteInventoryRepository`: warstwa danych sesji inwentaryzacji, skanów i pozycji wynikowych
-- `inventory::InventoryService`: logika biznesowa spisu z natury dla `ROOM`/`RACK`/`SHELF`
-- `exports::SqliteExportRepository`: warstwa danych wycofań egzemplarzy z obiegu
-- `exports::ExportService`: logika biznesowa wycofania egzemplarza i listowania wycofanych pozycji
-- `imports::SqliteImportRepository`: warstwa danych przebiegów importu i błędów rekordów
-- `imports::ImportService`: logika importu danych i raportowania podsumowania importu
-- `search::SqliteSearchRepository`: warstwa danych globalnej wyszukiwarki
-- `search::SearchService`: logika wyszukiwania przekrojowego po książkach, egzemplarzach i czytelnikach
-- `notes::SqliteNoteRepository`: warstwa danych notatek generycznych
-- `notes::NoteService`: logika tworzenia/odczytu/archiwizacji notatek
-- `reservations::SqliteReservationRepository`: warstwa danych rezerwacji
-- `reservations::ReservationService`: logika rezerwacji i wykrywania aktywnej kolejki po zwrocie
-- `readers::SqliteReaderRepository`: warstwa danych czytelników
-- `readers::ReaderService`: logika kont czytelników (walidacja e-mail, generacja kart, blokady)
-- `reputation::ReputationService`: logika punktacji reputacji i automatycznej blokady
-- `reports::SqliteReportRepository`: warstwa danych raportów, snapshotów i bazy pod eksport CSV
-- `reports::ReportService`: logika generowania raportów operacyjnych i archiwizacji wyników
-- `audit::SqliteAuditRepository`: warstwa danych logów zdarzeń i audytu
-- `audit::AuditService`: spójny interfejs logowania operacji systemowych
-- `errors`: hierarchia wyjątków aplikacyjnych, mapowanie błędów na komunikaty użytkownika, logowanie błędów
-
-## Moduł katalogu książek
-
-Obsługiwane operacje:
-- dodawanie książki
-- edycja książki
-- archiwizacja logiczna książki (`is_archived`, `archived_at`)
-- pobieranie szczegółów książki
-- listowanie książek
-- wyszukiwanie po `title`, `author`, `isbn`
-- filtrowanie po `categories` i `tags`
-
-Model książki (`books::Book`) zawiera:
-- `id` (wewnętrzne)
-- `public_id`
-- `title`
-- `author`
-- `isbn`
-- `categories`
-- `tags`
-- `edition`
-- `publisher`
-- `publication_year`
-- `description`
-- `created_at`
-- `updated_at`
-- `archived_at`
-
-Walidacja i reguły:
-- `title` i `author` są wymagane
-- `isbn` jest wymagany i walidowany (ISBN-10 / ISBN-13)
-- `public_id` jest generowany automatycznie przez `common::SystemIdGenerator`
-- operacje serwisu są logowane przez `books::BookService`
-
-## Moduł egzemplarzy książek
-
-Książka (`books::Book`) i egzemplarz (`copies::BookCopy`) to osobne byty.
-
-Model egzemplarza zawiera:
-- `id` (wewnętrzne)
-- `public_id`
-- `book_id`
-- `inventory_number` (unikalny)
-- `status`
-- `target_location_id`
-- `current_location_id`
-- `condition_note`
-- `acquisition_date`
-- `archival_reason`
-- `created_at`
-- `updated_at`
-
-Statusy egzemplarza:
-- `ON_SHELF`
-- `LOANED`
-- `RESERVED`
-- `IN_REPAIR`
-- `ARCHIVED`
-- `LOST`
-
-Obsługiwane operacje:
-- dodanie egzemplarza
-- edycja egzemplarza
-- pobranie egzemplarza
-- listowanie egzemplarzy danej książki
-- zmiana statusu z walidacją przejść
-- zmiana lokalizacji
-
-Historia zmian:
-- `copy_status_history`: historia przejść statusów
-- `copy_location_history`: historia zmian lokalizacji
-
-Walidacja i reguły:
-- egzemplarz musi należeć do istniejącej książki (`book_id`)
-- `inventory_number` jest wymagany i unikalny
-- `public_id` egzemplarza jest generowany automatycznie (`COPY-YYYY-NNNNNN`)
-- dla statusu `ARCHIVED` wymagane jest `archival_reason`
-- `current_location_id` i `target_location_id` muszą wskazywać istniejące lokalizacje
-
-## Moduł lokalizacji
-
-Hierarchia lokalizacji:
-- `LIBRARY`
-- `ROOM`
-- `RACK`
-- `SHELF`
-
-Każda lokalizacja zawiera:
-- `id`
-- `public_id`
-- `name`
-- `type`
-- `parent_id`
-- `code`
-- `description`
-
-Obsługiwane operacje:
-- tworzenie lokalizacji
-- edycja lokalizacji
-- pobranie lokalizacji
-- pobranie drzewa lokalizacji
-- pobranie egzemplarzy przypisanych do lokalizacji
-
-Reguły hierarchii:
-- `LIBRARY` nie ma rodzica
-- `ROOM` musi mieć rodzica typu `LIBRARY`
-- `RACK` musi mieć rodzica typu `ROOM`
-- `SHELF` musi mieć rodzica typu `RACK`
-- walidowane są cykle (`location` nie może być własnym przodkiem)
-
-Integracja z egzemplarzami:
-- `book_copies.current_location_id` i `book_copies.target_location_id` przechowują `locations.public_id`
-- `LocationService::get_location_copies(...)` zwraca egzemplarze, dla których lokalizacja jest bieżąca lub docelowa
-
-## Moduł inwentaryzacji
-
-Spis z natury jest wspierany dla:
-- `SHELF`
-- `RACK`
-- `ROOM`
-
-Kluczowe encje:
-- `inventory::InventorySession` (kto rozpoczął, kiedy rozpoczęto/zakończono, lokalizacja, status, wynik końcowy)
-- `inventory::InventoryItem` (pozycja inwentaryzacyjna z klasyfikacją wyniku)
-
-Obsługiwane operacje:
-- rozpoczęcie inwentaryzacji (`start_inventory`)
-- rejestrowanie skanów egzemplarzy (`register_inventory_scan`)
-- zakończenie inwentaryzacji i wyliczenie wyniku (`finish_inventory`)
-- pobranie wyniku (`get_inventory_result`)
-
-Klasyfikacja wyniku:
-- `ON_SHELF`
-- `JUSTIFIED` (poza półką, ale uzasadnione)
-- `MISSING`
-
-Integracja:
-- z lokalizacjami: sesja wskazuje lokalizację i typ zakresu (`ROOM`/`RACK`/`SHELF`), obsługiwane są poddrzewa lokalizacji
-- z egzemplarzami: skany rozpoznają egzemplarze po `public_id` lub `inventory_number` (przygotowane pod przyszłe dekodowanie kodów)
-- z modułem błędów: walidacje i błędy biznesowe zgłaszane przez `errors::ValidationError`, `errors::NotFoundError`, `errors::InventoryError`
-
-## Moduł raportów
-
-Obsługiwane raporty:
-- przetrzymane książki (`OVERDUE_BOOKS`)
-- niegrzeczni czytelnicy (`DELINQUENT_READERS`)
-- najczęściej wypożyczane książki (`MOST_BORROWED_BOOKS`)
-- stan inwentaryzacji (`INVENTORY_STATE`)
-- książki archiwalne (`ARCHIVED_BOOKS`)
-- egzemplarze w naprawie (`COPIES_IN_REPAIR`)
-
-Założenia techniczne:
-- każdy raport ma własne struktury wynikowe w `reports::report.hpp`
-- wszystkie raporty przechodzą przez `reports::ReportService`
-- raporty wspierają filtrowanie po przedziale dat (`DateRangeFilter`)
-- raport może zostać zapisany jako snapshot z `public_id` (`RPT-YYYY-NNNNNN`)
-
-Integracja:
-- z wypożyczeniami/rezerwacjami: dane z `reservations` i `copy_status_history`
-- z czytelnikami: dane z `readers`
-- z egzemplarzami: dane z `book_copies`
-- z inwentaryzacją: dane z `inventory_sessions`
-
-Baza pod przyszły eksport CSV:
-- `report_snapshots`: przechowuje metadane i payload raportu
-- `report_exports`: kolejka/stan eksportów (`CSV`, `PENDING/DONE/FAILED`)
-
-## Moduł globalnej wyszukiwarki
-
-Wyszukiwarka wspiera zapytania po:
-- książce (`title`)
-- autorze (`author`)
-- ISBN
-- egzemplarzu (`copy public_id`)
-- numerze inwentarzowym
-- czytelniku (imię, nazwisko, e-mail, `public_id`)
-- numerze karty
-
-Model wyników:
-- `books`: lista książek (`BookSearchHit`)
-- `copies`: lista egzemplarzy (`CopySearchHit`) z:
-  - statusem egzemplarza
-  - lokalizacją bieżącą i docelową
-  - informacją o potencjalnym posiadaczu (aktywna rezerwacja dla egzemplarza)
-- `readers`: lista czytelników (`ReaderSearchHit`)
-
-Integracja:
-- `books`
-- `copies`
-- `readers`
-- `reservations` (warstwa loans)
-- `locations`
-
-## Moduł audytu i logów zdarzeń
-
-Każde zdarzenie audytowe zapisuje:
-- kto wykonał operację (`actor`)
-- kiedy (`occurred_at`)
-- na jakim obiekcie (`object_type`, `object_public_id`)
-- typ operacji (`operation_type`)
-- szczegóły (`details`)
-
-Spójny interfejs:
-- `audit::AuditService::log_event(const audit::AuditLogInput&)`
-
-Integracja w systemie:
-- `BOOKS`: operacje na książkach
-- `COPIES`: operacje na egzemplarzach
-- `READERS`: operacje na czytelnikach
-- `LOANS`: operacje związane z wypożyczeniami/rezerwacjami
-- `INVENTORY`: operacje inwentaryzacyjne
-- `SUPPLY`: punkt integracyjny dla modułu dostaw
-- `EXPORT`: operacje generowania/eksportu raportów
-
-Składowanie:
-- tabela `audit_events` z indeksami po module, obiekcie i czasie
-
-## Moduł export / wycofania z obiegu
-
-System wspiera wycofanie egzemplarza z powodów:
-- `DAMAGE` (uszkodzenie)
-- `NO_BORROWINGS` (brak wypożyczeń)
-- `DUPLICATES` (duplikaty)
-- `OUTDATED_CONTENT` (nieaktualne treści)
-- `LOST` (zagubienie)
-
-Model wycofania (`exports::CopyWithdrawal`) zapisuje:
-- `copy_public_id`
-- `reason`
-- `withdrawal_date`
-- `operator_name`
-- `note`
-- `resulting_status`
-
-Logika archiwizacji:
-- dla powodów innych niż `LOST` egzemplarz przechodzi do statusu `ARCHIVED`
-- dla powodu `LOST` egzemplarz przechodzi do statusu `LOST`
-- zmiana statusu odbywa się przez `copies::CopyService::change_status(...)`, więc pozostaje spójna z modułem egzemplarzy
-- po skutecznej zmianie statusu tworzony jest rekord w `copy_withdrawals`
-
-Dostępne operacje:
-- `withdraw_copy(...)`
-- `list_withdrawn_copies(...)`
-
-## Moduł importu danych
-
-Import jest zaprojektowany pod rozszerzanie formatów:
-- `CSV` (zaimplementowane)
-- `EXCEL` (przygotowane na przyszłość)
-- `DATABASE` (przygotowane na przyszłość)
-
-Obsługiwane cele importu:
-- `BOOKS`
-- `READERS`
-
-Założenia:
-- parser jest abstrahowany przez `imports::ImportParser`
-- implementacja CSV jest dostarczona przez `imports::CsvImportParser`
-- serwis `imports::ImportService` wybiera parser po `ImportFormat`
-
-Raport operacji importu:
-- `imports::ImportRun` przechowuje metadane i podsumowanie (`valid_records`, `invalid_records`, `status`)
-- `imports::ImportRecordError` przechowuje błędy pojedynczych rekordów (`row_number`, `message`, `raw_record`)
-- dane raportu są trwałe w `import_runs` i `import_run_errors`
-
-Walidacja i błędy:
-- walidowane są parametry żądania importu (źródło, operator)
-- walidowane są wymagane kolumny i pola rekordów
-- błędne rekordy nie przerywają całego importu, trafiają do listy błędów raportu
-
-Integracja z audytem:
-- zapis zdarzenia `START` i `FINISH` dla każdego importu (`AuditModule::Import`)
-
-## Moduł czytelników
-
-Model czytelnika (`readers::Reader`) zawiera:
-- `id`
-- `public_id`
-- `card_number`
-- `first_name`
-- `last_name`
-- `email`
-- `phone`
-- `account_status`
-- `reputation_points`
-- `is_blocked`
-- `block_reason`
-- `gdpr_consent`
-- `created_at`
-- `updated_at`
-
-Obsługiwane operacje:
-- dodawanie czytelnika
-- edycja czytelnika
-- wyszukiwanie czytelnika
-- pobranie szczegółów czytelnika
-- blokada konta
-- odblokowanie konta
-
-Reguły:
-- `card_number` jest generowany automatycznie (`CARD-000123`)
-- e-mail jest walidowany i musi być unikalny
-- `account_status` jest enumem (`ACTIVE`, `SUSPENDED`, `CLOSED`)
-- operacje są logowane przez `readers::ReaderService`
-
-Miejsce pod kolejne moduły:
-- `reader_loan_history` (historia wypożyczeń)
-- `reader_notes` (notatki o czytelniku)
-
-## Moduł reputacji czytelników
-
-Założenia:
-- oddanie książki w terminie zwiększa reputację
-- oddanie po przedłużeniu daje mniejszy bonus
-- opóźnienie obniża reputację
-- kara naliczana jest za każdy pełny tydzień zwłoki
-- przy niskiej reputacji czytelnik jest automatycznie blokowany
-
-Konfigurowalne parametry (`reputation::ReputationConfig`):
-- `on_time_return_bonus`
-- `extended_return_bonus`
-- `late_penalty_per_full_week`
-- `auto_block_threshold`
-- `auto_block_reason`
-
-Historia zmian reputacji (`reader_reputation_history`):
-- `reader_id`
-- `change_value`
-- `reason`
-- `related_loan_id`
-- `created_at`
-
-API modułu:
-- pobranie aktualnej reputacji czytelnika
-- pobranie historii reputacji
-- automatyczna aktualizacja reputacji przy zwrocie książki (`LoanReturnEvent`)
-- ręczna korekta reputacji przez operatora/admina
-
-Integracja:
-- moduł aktualizuje pola `readers.reputation_points`, `readers.is_blocked`, `readers.block_reason`
-- posiada punkt integracyjny pod moduł wypożyczeń przez `apply_reputation_on_loan_return(...)`
-
-## Moduł notatek
-
-Notatki mogą być przypisane do:
-- czytelnika (`READER`)
-- książki (`BOOK`)
-- egzemplarza (`COPY`)
-- wypożyczenia (`LOAN`)
-
-Model notatki (`notes::Note`) zawiera:
-- `id`
-- `public_id`
-- `target_type`
-- `target_id`
-- `author`
-- `created_at`
-- `content`
-- `is_archived`
-- `archived_at`
-
-Obsługiwane operacje:
-- dodanie notatki
-- pobranie notatek dla obiektu (`target_type` + `target_id`)
-- archiwizacja notatki
-
-Reguły:
-- `target_type` jest enumem
-- `public_id` notatki jest generowany automatycznie (`NOTE-YYYY-NNNNNN`)
-- notatki są generyczne i mogą być używane przez różne moduły bez duplikowania logiki
-
-## Moduł rezerwacji
-
-System obsługuje:
-- utworzenie rezerwacji
-- anulowanie rezerwacji
-- wygaśnięcie rezerwacji
-- powiązanie rezerwacji z książką lub egzemplarzem
-
-Model rezerwacji (`reservations::Reservation`) zawiera:
-- `id`
-- `public_id`
-- `reader_id`
-- `copy_id` lub `book_id`
-- `reservation_date`
-- `expiration_date`
-- `status`
-- `created_at`
-- `updated_at`
-
-Statusy:
-- `ACTIVE`
-- `CANCELLED`
-- `EXPIRED`
-- `FULFILLED` (pod przyszły workflow realizacji)
-
-Zasady działania:
-- czytelnik z blokadą nie może tworzyć rezerwacji
-- rezerwacja musi wskazywać dokładnie jeden cel (`copy_id` albo `book_id`)
-- dla rezerwacji egzemplarza walidowany jest status egzemplarza (blokowane m.in. `RESERVED`, `ARCHIVED`, `LOST`, `IN_REPAIR`)
-- system potrafi wykryć najstarszą aktywną rezerwację dla zwróconego egzemplarza (najpierw po `copy_id`, potem po `book_id`)
-
-Integracja:
-- moduł korzysta z danych `readers`, `books`, `book_copies`
-- przygotowane API może być użyte przez przyszły moduł wypożyczeń przy obsłudze zwrotu
-
-## Konwencja identyfikatorów
-
-Generator obsługuje formaty:
-- `BOOK-2026-000001`
-- `COPY-2026-000001`
-- `CARD-000123`
-- `LOAN-2026-000991`
-- `RES-2026-000010`
-- `RPT-2026-000120`
-- `LOC-2026-000001`
-- `NOTE-2026-000001`
-
-Zasady:
-- prefiks identyfikuje domenę (`BOOK`, `COPY`, `CARD`, `LOAN`, `RES`, `RPT`, `LOC`, `NOTE`)
-- dla typów rocznych numeracja jest niezależna per rok
-- sekwencja jest zeropadowana do szerokości 6
-- `CARD` nie zawiera roku i używa globalnej sekwencji
-
-API modułu `common/system_id.hpp`:
-- `common::rule_for(IdType)` zwraca regułę formatu dla typu
-- `common::format_identifier(...)` buduje ID w sposób deterministyczny (łatwy do testowania)
-- `common::SystemIdGenerator` zarządza sekwencjami i generuje kolejne ID
-- `set_next_sequence(...)` i `peek_next_sequence(...)` umożliwiają kontrolę stanu generatora w testach i integracjach
-
-## Moduł błędów
-
-Dostępne klasy:
-- `errors::AppError`
-- `errors::ValidationError`
-- `errors::DatabaseError`
-- `errors::NotFoundError`
-- `errors::BookNotFoundError`
-- `errors::CopyUnavailableError`
-- `errors::ReaderBlockedError`
-- `errors::LoanError`
-- `errors::InventoryError`
-
-Dodatkowo:
-- `errors::to_user_message(const std::exception&)` mapuje wyjątek na czytelny komunikat
-- `errors::log_error(const std::exception&, std::ostream&)` zapisuje log błędu
-
-## Zasady rozwoju
-
-- Rozbudowuj projekt iteracyjnie, małymi krokami.
-- Dodawaj nowe moduły domenowe w `include/<modul>/` i `src/<modul>/`.
-- Utrzymuj spójne API klas i jawne granice odpowiedzialności.
-- Stosuj wyjątki z modułu `errors` zamiast `std::runtime_error` w kodzie domenowym.
-
-## Commitowanie
-
-Stosuj małe, logiczne commity w stylu:
-- `chore: analyze existing biblioteka structure`
-- `feat: add domain error module`
-- `feat: add reader model and service`
-- `feat: add loan workflow`
-- `docs: update biblioteka readme`
-- `refactor: split library module into domain components`
+Aplikacja tworzy/otwiera lokalną bazę `library.db` i inicjalizuje schemat.
+
+## Opis bazy danych SQLite
+Kluczowe tabele:
+- Katalog: `books`, `book_copies`, `copy_status_history`, `copy_location_history`
+- Czytelnicy i rezerwacje: `readers`, `reservations`, `reader_reputation_history`, `reader_loan_history`, `reader_notes`
+- Lokalizacja i inwentaryzacja: `locations`, `inventory_sessions`, `inventory_scans`, `inventory_items`
+- Raportowanie i eksport: `report_snapshots`, `report_exports`
+- Audyt i import: `audit_events`, `import_runs`, `import_run_errors`
+- Wycofania i notatki: `copy_withdrawals`, `notes`
+
+Wszystkie tabele są tworzone idempotentnie w `Db::init_schema()`.
+
+## Opis identyfikatorów systemowych
+Identyfikatory generuje `common::SystemIdGenerator` według typu:
+- `BOOK-YYYY-NNNNNN`
+- `COPY-YYYY-NNNNNN`
+- `RES-YYYY-NNNNNN`
+- `LOC-YYYY-NNNNNN`
+- `NOTE-YYYY-NNNNNN`
+- `INV-YYYY-NNNNNN`
+- `RPT-YYYY-NNNNNN`
+- `IMP-YYYY-NNNNNN`
+- `CARD-NNNNNN` (bez roku)
+
+Sekwencje są inicjalizowane na podstawie istniejących danych w repozytoriach.
+
+## Opis modułu błędów
+Moduł `errors` zawiera:
+- `ErrorCode` z kategoriami domenowymi,
+- klasy wyjątków (`ValidationError`, `NotFoundError`, `DatabaseError` i modułowe np. `ImportError`, `SearchError`),
+- `to_user_message(...)` do mapowania wyjątków na bezpieczne komunikaty,
+- `error_logger` do logowania technicznych szczegółów błędów.
+
+Zasada: walidacje i reguły biznesowe rzucają wyjątki domenowe, a UI/API dostaje uproszczony komunikat.
+
+## Zasady dalszego rozwoju
+- Zachowywać podział: model domenowy / serwis / repozytorium.
+- Nie mieszać logiki SQL z logiką biznesową.
+- Każdy nowy moduł dodawać przez `Library` jako fasadę.
+- Rozszerzać `ErrorCode` i wyjątki dla nowych domen.
+- Utrzymywać spójność nazewnictwa (`public_id`, `*_service`, `sqlite_*_repository`).
+- Dodawać indeksy SQLite wraz z nowymi tabelami lub ciężkimi zapytaniami.
+- Każdą istotną operację biznesową logować audytowo.
+
+## Przykładowa kolejność pracy nad frontendem i API
+1. Ustalić kontrakty DTO na bazie modeli wynikowych `Library`.
+2. Zbudować warstwę API (REST/GraphQL) mapującą wyjątki `errors` na kody HTTP.
+3. Udostępnić najpierw moduły read-only: wyszukiwarka, raporty, szczegóły obiektów.
+4. Dodać operacje mutujące: książki, egzemplarze, czytelnicy, rezerwacje.
+5. Dodać procesy operacyjne: inwentaryzacja, wycofania, import.
+6. Podłączyć ekran audytu i monitoringu importów/raportów.
+7. Dodać testy end-to-end na kluczowe przepływy biznesowe.
+
+## Zasady commitów
+- Format: `<type>: <krótki opis>`
+- Zalecane `type`: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`.
+- Jeden commit powinien obejmować jeden logiczny zakres zmian.
+- Dla zmian schematu DB i API zawsze aktualizować README.
+- Przykłady:
+  - `feat: add global search module`
+  - `fix: validate import row parsing for empty columns`
+  - `docs: finalize project documentation and cleanup`
