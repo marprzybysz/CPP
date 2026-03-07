@@ -25,6 +25,7 @@ public:
     virtual InventorySession create_session(const InventorySession& session) = 0;
     virtual std::optional<InventorySession> get_session_by_public_id(const std::string& public_id) const = 0;
     virtual std::optional<InventorySession> get_active_session_for_location(const std::string& location_public_id) const = 0;
+    virtual std::vector<InventorySession> list_sessions(int limit, int offset) const = 0;
 
     virtual InventoryScannedCopy create_scan(const InventoryScannedCopy& scan) = 0;
     virtual std::vector<InventoryScannedCopy> list_scans_for_session(const std::string& session_public_id) const = 0;

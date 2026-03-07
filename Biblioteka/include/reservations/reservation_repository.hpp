@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace reservations {
 
@@ -27,6 +28,8 @@ public:
     virtual Reservation create(const Reservation& reservation) = 0;
     virtual std::optional<Reservation> get_by_public_id(const std::string& public_id) const = 0;
     virtual Reservation update_status(const std::string& public_id, ReservationStatus status) = 0;
+    virtual Reservation update_expiration(const std::string& public_id, const std::string& expiration_date) = 0;
+    virtual std::vector<LoanListItem> list_loans(const LoanListQuery& query) const = 0;
 
     virtual ReaderReservationInfo get_reader_info(int reader_id) const = 0;
     virtual CopyReservationInfo get_copy_info(int copy_id) const = 0;

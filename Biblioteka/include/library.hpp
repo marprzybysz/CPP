@@ -82,6 +82,7 @@ public:
                                                             const inventory::RegisterScannedCopyInput& input);
     inventory::InventoryResult finish_inventory(const std::string& session_public_id, const inventory::FinishInventoryInput& input);
     inventory::InventoryResult get_inventory_result(const std::string& session_public_id) const;
+    std::vector<inventory::InventorySession> list_inventory_sessions(int limit = 50, int offset = 0) const;
 
     readers::Reader add_reader(const readers::CreateReaderInput& input);
     readers::Reader edit_reader(const std::string& public_id, const readers::UpdateReaderInput& input);
@@ -90,6 +91,7 @@ public:
     readers::Reader block_reader(const std::string& public_id, const std::string& reason);
     readers::Reader unblock_reader(const std::string& public_id);
     int get_reader_reputation(int reader_id) const;
+    std::vector<readers::ReaderLoanHistoryEntry> get_reader_loan_history(const std::string& reader_public_id) const;
     std::vector<reputation::ReputationChange> get_reader_reputation_history(int reader_id,
                                                                             int limit = 100,
                                                                             int offset = 0) const;
@@ -108,6 +110,9 @@ public:
     reservations::Reservation get_reservation_details(const std::string& public_id) const;
     reservations::Reservation cancel_reservation(const std::string& public_id);
     reservations::Reservation expire_reservation(const std::string& public_id);
+    reservations::Reservation fulfill_loan(const std::string& public_id);
+    reservations::Reservation extend_loan(const std::string& public_id, const std::string& expiration_date);
+    std::vector<reservations::LoanListItem> list_loans(const reservations::LoanListQuery& query) const;
     std::optional<reservations::Reservation> find_active_reservation_for_returned_copy(int copy_id) const;
 
     reports::OverdueBooksReport generate_overdue_books_report(const reports::ReportQueryOptions& options);

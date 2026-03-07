@@ -283,6 +283,17 @@ InventoryResult InventoryService::get_inventory_result(const std::string& sessio
     return result;
 }
 
+std::vector<InventorySession> InventoryService::list_sessions(int limit, int offset) const {
+    if (limit <= 0) {
+        throw errors::ValidationError("inventory list limit must be greater than zero");
+    }
+    if (offset < 0) {
+        throw errors::ValidationError("inventory list offset cannot be negative");
+    }
+
+    return repository_.list_sessions(limit, offset);
+}
+
 std::string InventoryService::normalize_text(std::string value) {
     auto not_space = [](unsigned char ch) { return std::isspace(ch) == 0; };
 

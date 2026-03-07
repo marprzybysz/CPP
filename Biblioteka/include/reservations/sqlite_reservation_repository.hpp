@@ -12,6 +12,8 @@ public:
     Reservation create(const Reservation& reservation) override;
     std::optional<Reservation> get_by_public_id(const std::string& public_id) const override;
     Reservation update_status(const std::string& public_id, ReservationStatus status) override;
+    Reservation update_expiration(const std::string& public_id, const std::string& expiration_date) override;
+    std::vector<LoanListItem> list_loans(const LoanListQuery& query) const override;
 
     ReaderReservationInfo get_reader_info(int reader_id) const override;
     CopyReservationInfo get_copy_info(int copy_id) const override;

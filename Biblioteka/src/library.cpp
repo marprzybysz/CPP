@@ -189,6 +189,10 @@ inventory::InventoryResult Library::get_inventory_result(const std::string& sess
     return inventory_service_.get_inventory_result(session_public_id);
 }
 
+std::vector<inventory::InventorySession> Library::list_inventory_sessions(int limit, int offset) const {
+    return inventory_service_.list_sessions(limit, offset);
+}
+
 readers::Reader Library::add_reader(const readers::CreateReaderInput& input) {
     readers::Reader created = reader_service_.add_reader(input);
     log_system_audit(audit::AuditModule::Readers, "READER", created.public_id, "CREATE", "reader added");
@@ -223,6 +227,10 @@ readers::Reader Library::unblock_reader(const std::string& public_id) {
 
 int Library::get_reader_reputation(int reader_id) const {
     return reputation_service_.get_current_reputation(reader_id);
+}
+
+std::vector<readers::ReaderLoanHistoryEntry> Library::get_reader_loan_history(const std::string& reader_public_id) const {
+    return reader_repository_.list_loan_history(reader_public_id);
 }
 
 std::vector<reputation::ReputationChange> Library::get_reader_reputation_history(int reader_id, int limit, int offset) const {
@@ -276,6 +284,26 @@ reservations::Reservation Library::expire_reservation(const std::string& public_
     reservations::Reservation updated = reservation_service_.expire_reservation(public_id);
     log_system_audit(audit::AuditModule::Loans, "RESERVATION", updated.public_id, "EXPIRE", "loan reservation expired");
     return updated;
+}
+
+reservations::Reservation Library::fulfill_loan(const std::string& public_id) {
+    reservations::Reservation updated = reservation_service_.fulfill_reservation(public_id);
+    log_system_audit(audit::AuditModule::Loans, "RESERVATION", updated.public_id, "RETURN", "loan marked as fulfilled");
+    return updated;
+}
+
+reservations::Reservation Library::extend_loan(const std::string& public_id, const std::string& expiration_date) {
+    reservations::Reservation updated = reservation_service_.extend_reservation(public_id, expiration_date);
+    log_system_audit(audit::AuditModule::Loans,
+                     "RESERVATION",
+                     updated.public_id,
+                     "EXTEND",
+                     "loan extended to " + updated.expiration_date);
+    return updated;
+}
+
+std::vector<reservations::LoanListItem> Library::list_loans(const reservations::LoanListQuery& query) const {
+    return reservation_service_.list_loans(query);
 }
 
 std::optional<reservations::Reservation> Library::find_active_reservation_for_returned_copy(int copy_id) const {

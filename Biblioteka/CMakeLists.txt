@@ -49,6 +49,67 @@ add_executable(cpp_biblioteka
     src/reservations/sqlite_reservation_repository.cpp
     src/errors/error_mapper.cpp
     src/errors/error_logger.cpp
+    src/ui/application.cpp
+    src/ui/input_handler.cpp
+    src/ui/renderer.cpp
+    src/ui/style.cpp
+    src/ui/screen_manager.cpp
+    src/ui/components/confirm_dialog.cpp
+    src/ui/components/dialog.cpp
+    src/ui/components/footer.cpp
+    src/ui/components/form_field.cpp
+    src/ui/components/header.cpp
+    src/ui/components/list_view.cpp
+    src/ui/components/menu.cpp
+    src/ui/components/message_box.cpp
+    src/ui/components/search_box.cpp
+    src/ui/components/status_bar.cpp
+    src/ui/components/table_view.cpp
+    src/ui/controllers/application_controller.cpp
+    src/ui/controllers/audit_controller.cpp
+    src/ui/controllers/books_controller.cpp
+    src/ui/controllers/copies_controller.cpp
+    src/ui/controllers/dashboard_controller.cpp
+    src/ui/controllers/inventory_controller.cpp
+    src/ui/controllers/locations_controller.cpp
+    src/ui/controllers/loans_controller.cpp
+    src/ui/controllers/notes_controller.cpp
+    src/ui/controllers/readers_controller.cpp
+    src/ui/controllers/reports_controller.cpp
+    src/ui/controllers/reservations_controller.cpp
+    src/ui/screens/audit_log_screen.cpp
+    src/ui/screens/book_details_screen.cpp
+    src/ui/screens/book_form_screen.cpp
+    src/ui/screens/book_list_screen.cpp
+    src/ui/screens/copy_details_screen.cpp
+    src/ui/screens/copy_form_screen.cpp
+    src/ui/screens/copy_list_screen.cpp
+    src/ui/screens/copy_location_screen.cpp
+    src/ui/screens/copy_status_screen.cpp
+    src/ui/screens/dashboard_screen.cpp
+    src/ui/screens/inventory_list_screen.cpp
+    src/ui/screens/inventory_result_screen.cpp
+    src/ui/screens/inventory_session_screen.cpp
+    src/ui/screens/loan_create_screen.cpp
+    src/ui/screens/loan_details_screen.cpp
+    src/ui/screens/loan_extend_dialog_screen.cpp
+    src/ui/screens/loan_list_screen.cpp
+    src/ui/screens/loan_return_dialog_screen.cpp
+    src/ui/screens/location_details_screen.cpp
+    src/ui/screens/location_tree_screen.cpp
+    src/ui/screens/notes_screen.cpp
+    src/ui/screens/reader_block_dialog_screen.cpp
+    src/ui/screens/reader_details_screen.cpp
+    src/ui/screens/reader_form_screen.cpp
+    src/ui/screens/reader_list_screen.cpp
+    src/ui/screens/reader_loan_history_screen.cpp
+    src/ui/screens/reader_reputation_screen.cpp
+    src/ui/screens/reader_unblock_dialog_screen.cpp
+    src/ui/screens/report_menu_screen.cpp
+    src/ui/screens/report_result_screen.cpp
+    src/ui/screens/reservation_create_screen.cpp
+    src/ui/screens/reservation_details_screen.cpp
+    src/ui/screens/reservation_list_screen.cpp
 )
 
 target_include_directories(cpp_biblioteka PRIVATE include)

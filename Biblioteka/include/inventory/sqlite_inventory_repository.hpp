@@ -19,6 +19,7 @@ public:
     InventorySession create_session(const InventorySession& session) override;
     std::optional<InventorySession> get_session_by_public_id(const std::string& public_id) const override;
     std::optional<InventorySession> get_active_session_for_location(const std::string& location_public_id) const override;
+    std::vector<InventorySession> list_sessions(int limit, int offset) const override;
 
     InventoryScannedCopy create_scan(const InventoryScannedCopy& scan) override;
     std::vector<InventoryScannedCopy> list_scans_for_session(const std::string& session_public_id) const override;
